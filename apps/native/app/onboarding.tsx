@@ -1,9 +1,11 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, TextInput, View } from "react-native";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PrimaryButton } from "@/components/buttons";
+import { Hint } from "@/components/hint";
 import { Body, BodyMuted, Caption, Display, Label } from "@/components/typography";
 import { useApp } from "@/lib/store";
 import { COLORS, DURATIONS, FONTS, RADIUS } from "@/lib/theme";
@@ -18,18 +20,32 @@ export default function Onboarding() {
   const [task, setTask] = useState("");
   const [duration, setDuration] = useState(25);
 
+  const goalReady = goal.trim().length > 0;
+  const taskReady = task.trim().length > 0;
+
   function finish() {
+    if (!taskReady) return;
     completeOnboarding(goal, task, duration);
     router.replace("/focus");
   }
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
-      <View style={{ flex: 1, paddingHorizontal: 28 }}>
+      <View style={{ paddingHorizontal: 28 }}>
         <Progress step={step} />
+      </View>
 
+      <ScrollView
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 28 }}
+      >
         {step === 0 && (
-          <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 8 }}>
+          <Animated.View
+            key="s0"
+            entering={FadeIn.duration(320)}
+            style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 8 }}
+          >
             <Label style={{ marginBottom: 12 }}>12,000 people show up daily</Label>
             <Display>Stop planning.{"\n"}Start executing.</Display>
             <Body color={COLORS.subtle} style={{ marginTop: 16 }}>
@@ -41,11 +57,15 @@ export default function Onboarding() {
             <Caption style={{ marginTop: 16, textAlign: "center", fontFamily: FONTS.mono }}>
               No account. No setup. Nothing to lose but the excuses.
             </Caption>
-          </View>
+          </Animated.View>
         )}
 
         {step === 1 && (
-          <View style={{ flex: 1, justifyContent: "center" }}>
+          <Animated.View
+            key="s1"
+            entering={FadeInDown.duration(280)}
+            style={{ flex: 1, justifyContent: "center", paddingVertical: 24 }}
+          >
             <Display style={{ fontSize: 34, lineHeight: 38 }}>What are you working toward?</Display>
             <BodyMuted style={{ marginTop: 12 }}>
               Tasks live under a goal. Start with one — add more later.
@@ -56,6 +76,9 @@ export default function Onboarding() {
               onChangeText={setGoal}
               placeholder="Ship LockedIn v1"
               placeholderTextColor={COLORS.subtle}
+              autoCorrect={false}
+              returnKeyType="next"
+              onSubmitEditing={() => goalReady && setStep(2)}
               style={inputStyle}
             />
 
@@ -74,20 +97,20 @@ export default function Onboarding() {
             </View>
 
             <View style={{ marginTop: 28 }}>
-              <PrimaryButton
-                label="Next"
-                onPress={() => setStep(2)}
-                disabled={goal.trim().length === 0}
-              />
+              <PrimaryButton label="Next" onPress={() => setStep(2)} disabled={!goalReady} />
             </View>
             <Caption style={{ marginTop: 16, textAlign: "center", fontFamily: FONTS.mono }}>
               One goal is enough to begin.
             </Caption>
-          </View>
+          </Animated.View>
         )}
 
         {step === 2 && (
-          <View style={{ flex: 1, justifyContent: "center" }}>
+          <Animated.View
+            key="s2"
+            entering={FadeInDown.duration(280)}
+            style={{ flex: 1, justifyContent: "center", paddingVertical: 24 }}
+          >
             <Display style={{ fontSize: 34, lineHeight: 38 }}>What&apos;s the one thing?</Display>
             <BodyMuted style={{ marginTop: 12 }}>
               Something real you can do right now — not a someday.
@@ -96,7 +119,7 @@ export default function Onboarding() {
             <View style={{ flexDirection: "row", marginTop: 18 }}>
               <View style={goalTag}>
                 <Label color={COLORS.coral} style={{ letterSpacing: 1.5 }}>
-                  Under · {goal || "your goal"}
+                  Under · {goal.trim() || "your goal"}
                 </Label>
               </View>
             </View>
@@ -106,8 +129,17 @@ export default function Onboarding() {
               onChangeText={setTask}
               placeholder="Write the Q3 narrative"
               placeholderTextColor={COLORS.subtle}
+              autoCorrect={false}
+              returnKeyType="done"
+              onSubmitEditing={finish}
               style={inputStyle}
             />
+
+            <View style={{ marginTop: 16 }}>
+              <Hint id="onboarding.first-task">
+                Pick something you can actually finish today — not a someday.
+              </Hint>
+            </View>
 
             <Label style={{ marginTop: 24, marginBottom: 10 }}>Block length</Label>
             <View style={{ flexDirection: "row", gap: 8 }}>
@@ -124,18 +156,14 @@ export default function Onboarding() {
             </View>
 
             <View style={{ marginTop: 28 }}>
-              <PrimaryButton
-                label="Start the timer"
-                onPress={finish}
-                disabled={task.trim().length === 0}
-              />
+              <PrimaryButton label="Start the timer" onPress={finish} disabled={!taskReady} />
             </View>
             <Caption style={{ marginTop: 16, textAlign: "center", fontFamily: FONTS.mono }}>
               The clock runs the second you tap.
             </Caption>
-          </View>
+          </Animated.View>
         )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
