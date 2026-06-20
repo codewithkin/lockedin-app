@@ -69,6 +69,12 @@ export default function Layout() {
                   <Stack.Screen name="index" />
                   <Stack.Screen name="onboarding" />
                   <Stack.Screen name="(tabs)" />
+                  <Stack.Screen name="add-task" options={{ presentation: "modal" }} />
+                  <Stack.Screen name="add-goal" options={{ presentation: "modal" }} />
+                  <Stack.Screen
+                    name="first-win"
+                    options={{ presentation: "fullScreenModal", gestureEnabled: false }}
+                  />
                 </Stack>
               </AppProvider>
             </HeroUINativeProvider>

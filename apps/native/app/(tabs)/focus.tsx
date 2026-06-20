@@ -13,7 +13,7 @@ import { COLORS } from "@/lib/theme";
 
 export default function Focus() {
   const router = useRouter();
-  const { currentTask, queue, state, completeTask, skipTask } = useApp();
+  const { currentTask, queue, state, today, completeTask, skipTask } = useApp();
 
   const total = (currentTask?.durationMin ?? 25) * 60;
   const [secondsLeft, setSecondsLeft] = useState(total);
@@ -43,7 +43,7 @@ export default function Focus() {
             Add a task and you&apos;re straight back in the loop.
           </BodyMuted>
           <View style={{ marginTop: 28, width: "100%" }}>
-            <PrimaryButton label="Add a task" onPress={() => router.push("/plan")} />
+            <PrimaryButton label="Add a task" onPress={() => router.push("/tasks")} />
           </View>
         </View>
       </SafeAreaView>
@@ -57,7 +57,9 @@ export default function Focus() {
 
   function onDone() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    const wasFirstToday = today.completed === 0;
     completeTask(currentTask!.id, elapsed);
+    if (wasFirstToday) router.push("/first-win");
   }
 
   function onSkip() {
