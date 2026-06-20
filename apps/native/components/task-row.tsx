@@ -18,6 +18,8 @@ type Props = {
   onMoveUp?: () => void;
   onMoveDown?: () => void;
   onRemove?: () => void;
+  dragHandle?: React.ReactNode;
+  active?: boolean;
 };
 
 export function TaskRow({
@@ -31,6 +33,8 @@ export function TaskRow({
   onMoveUp,
   onMoveDown,
   onRemove,
+  dragHandle,
+  active,
 }: Props) {
   const running = variant === "running";
   const done = variant === "done";
@@ -45,10 +49,21 @@ export function TaskRow({
         gap: 12,
         borderRadius: RADIUS.xl,
         borderWidth: 1,
-        borderColor: running ? COLORS.coral : COLORS.line,
-        backgroundColor: running ? "rgba(255,107,74,0.07)" : done || skipped ? "transparent" : COLORS.card,
+        borderColor: active ? COLORS.coral : running ? COLORS.coral : COLORS.line,
+        backgroundColor: active
+          ? COLORS.elevated
+          : running
+            ? "rgba(255,107,74,0.07)"
+            : done || skipped
+              ? "transparent"
+              : COLORS.card,
         paddingHorizontal: 16,
         paddingVertical: 14,
+        shadowColor: "#000",
+        shadowOpacity: active ? 0.4 : 0,
+        shadowRadius: active ? 12 : 0,
+        shadowOffset: { width: 0, height: active ? 6 : 0 },
+        elevation: active ? 8 : 0,
       }}
     >
       {running ? (
@@ -113,6 +128,7 @@ export function TaskRow({
               <Ionicons name="trash-outline" size={16} color="#6b6b73" />
             </Pressable>
           ) : null}
+          {dragHandle ?? null}
         </View>
       )}
     </View>
