@@ -1,0 +1,25 @@
+@import "@lockedin/ui/globals.css";
+
+:root {
+  --li-bg: #0a0a0a;
+  --li-surface: #121212;
+  --li-border: #232323;
+  --li-text: #e5e5e5;
+  --li-muted: #8a8a8a;
+  --li-accent: #f0541e;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--li-bg);
+  color: var(--li-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background-color: var(--li-accent);
+  color: #0a0a0a;
+}
