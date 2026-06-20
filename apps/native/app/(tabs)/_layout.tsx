@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
-import { ACCENT } from "@/lib/theme";
+import { COLORS } from "@/lib/theme";
 
 export const unstable_settings = {
   initialRouteName: "focus",
@@ -12,12 +12,13 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: ACCENT,
-        tabBarInactiveTintColor: "#666666",
+        tabBarActiveTintColor: COLORS.coral,
+        tabBarInactiveTintColor: "#5b5b63",
         tabBarStyle: {
-          backgroundColor: "#0A0A0A",
-          borderTopColor: "#1F1F1F",
+          backgroundColor: COLORS.ink,
+          borderTopColor: "#17171c",
         },
+        tabBarLabelStyle: { fontFamily: "JetBrainsMono_500Medium", fontSize: 10 },
       }}
     >
       <Tabs.Screen
@@ -28,9 +29,16 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="plan"
+        name="goals"
         options={{
-          title: "Plan",
+          title: "Goals",
+          tabBarIcon: ({ color, size }) => <Ionicons name="flag" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="tasks"
+        options={{
+          title: "Tasks",
           tabBarIcon: ({ color, size }) => <Ionicons name="list" size={size} color={color} />,
         }}
       />
