@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@lockedin/ui/components/button";
 import { useState } from "react";
 
 export function WaitlistForm() {
@@ -14,7 +15,7 @@ export function WaitlistForm() {
 
   if (submitted) {
     return (
-      <p className="text-sm text-neutral-300">
+      <p className="font-mono text-sm text-subtle">
         You&apos;re on the list. We&apos;ll ping you when iOS drops.
       </p>
     );
@@ -28,14 +29,11 @@ export function WaitlistForm() {
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="your@email.com"
-        className="flex-1 rounded-xl border border-neutral-700 bg-neutral-900 px-4 py-3 text-sm text-neutral-100 outline-none placeholder:text-neutral-500 focus:border-neutral-400"
+        className="flex-1 rounded-full border border-line bg-elevated px-5 py-3 text-sm text-fg outline-none placeholder:text-subtle focus:border-coral"
       />
-      <button
-        type="submit"
-        className="rounded-xl bg-[#f0541e] px-5 py-3 text-sm font-semibold text-black transition-opacity hover:opacity-90"
-      >
+      <Button type="submit" size="lg" className="h-12 rounded-full px-6 text-sm font-semibold">
         Notify me
-      </button>
+      </Button>
     </form>
   );
 }
