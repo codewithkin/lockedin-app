@@ -1,16 +1,21 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Pressable, ScrollView, TextInput, View } from "react-native";
+import { Image, Pressable, ScrollView, TextInput, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PrimaryButton } from "@/components/buttons";
+import { FadeToInk } from "@/components/gradient";
 import { Hint } from "@/components/hint";
 import { Body, BodyMuted, Caption, Display, Label } from "@/components/typography";
 import { useApp } from "@/lib/store";
 import { COLORS, DURATIONS, FONTS, RADIUS } from "@/lib/theme";
 
 const STARTERS = ["Get fit", "Write every day", "Launch a side project", "Read more"];
+
+// Photo by Cemrecan Yurtman on Unsplash (Unsplash License)
+const HERO_IMAGE =
+  "https://images.unsplash.com/photo-1739296408127-b6cc9c5c094b?fm=jpg&q=70&w=1200&auto=format&fit=crop";
 
 export default function Onboarding() {
   const router = useRouter();
@@ -41,12 +46,21 @@ export default function Onboarding() {
         contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 28 }}
       >
         {step === 0 && (
-          <Animated.View
-            key="s0"
-            entering={FadeIn.duration(320)}
-            style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 8 }}
-          >
-            <Label style={{ marginBottom: 12 }}>12,000 people show up daily</Label>
+          <Animated.View key="s0" entering={FadeIn.duration(320)} style={{ flex: 1 }}>
+            <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: 320 }}>
+              <Image
+                source={{ uri: HERO_IMAGE }}
+                style={{ width: "100%", height: "100%", borderRadius: RADIUS.x2 }}
+                resizeMode="cover"
+              />
+              <FadeToInk height={200} />
+            </View>
+            <View style={{ position: "absolute", top: 14, left: 4 }}>
+              <Label>LockedIn</Label>
+            </View>
+
+            <View style={{ flex: 1, justifyContent: "flex-end", paddingBottom: 8 }}>
+              <Label style={{ marginBottom: 12 }}>12,000 people show up daily</Label>
             <Display>Stop planning.{"\n"}Start executing.</Display>
             <Body color={COLORS.subtle} style={{ marginTop: 16 }}>
               One task. A timer runs. You hit Done or Skip. That&apos;s the whole app.
@@ -55,8 +69,9 @@ export default function Onboarding() {
               <PrimaryButton label="Lock in" onPress={() => setStep(1)} />
             </View>
             <Caption style={{ marginTop: 16, textAlign: "center", fontFamily: FONTS.mono }}>
-              No account. No setup. Nothing to lose but the excuses.
-            </Caption>
+                No account. No setup. Nothing to lose but the excuses.
+              </Caption>
+            </View>
           </Animated.View>
         )}
 

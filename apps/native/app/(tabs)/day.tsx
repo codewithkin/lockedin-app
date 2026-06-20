@@ -1,8 +1,11 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Pressable, ScrollView, Share, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Pressable, Share, View } from "react-native";
 
-import { Body, BodyMuted, Caption, Display, Label, Title } from "@/components/typography";
+import { Hint } from "@/components/hint";
+import { AnimatedRow, Card, SectionLabel } from "@/components/primitives";
+import { Screen, ScreenHeader } from "@/components/screen";
+import { TaskRow } from "@/components/task-row";
+import { Body, BodyMuted, Display, Label, Title } from "@/components/typography";
 import { formatDuration, isToday } from "@/lib/date";
 import { useApp } from "@/lib/store";
 import { COLORS, FONTS, RADIUS } from "@/lib/theme";
@@ -14,6 +17,8 @@ export default function Day() {
   const todayTasks = state.tasks.filter(
     (t) => isToday(t.completedAt) && (t.status === "done" || t.status === "skipped"),
   );
+  const goalTitle = (goalId: string | null) =>
+    state.goals.find((g) => g.id === goalId)?.title ?? undefined;
 
   async function onShare() {
     const message = `Today on LockedIn\nCompleted: ${today.completed}\nSkipped: ${today.skipped}\nFocus: ${formatDuration(today.focusSeconds)}\nStreak: ${streak} day${streak === 1 ? "" : "s"}`;
@@ -25,107 +30,85 @@ export default function Day() {
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 48 }}>
-        <Title>Today&apos;s summary</Title>
-        <BodyMuted style={{ marginTop: 4 }}>An honest mirror of the day.</BodyMuted>
+    <Screen>
+      <ScreenHeader title="Today's summary" subtitle="An honest mirror of the day." />
 
-        <View style={streakCard}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
-            <Ionicons name="flame" size={28} color={COLORS.coral} />
-            <View>
-              <Display style={{ fontSize: 30, lineHeight: 32 }} color={COLORS.coral}>
-                {streak} day{streak === 1 ? "" : "s"}
-              </Display>
-              <Label style={{ marginTop: 2 }}>
-                Streak · {today.completed > 0 ? "still alive" : "at risk"}
-              </Label>
-            </View>
+      <Card
+        style={{
+          marginTop: 20,
+          borderColor: COLORS.coralDeep,
+          backgroundColor: "rgba(255,107,74,0.07)",
+        }}
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+          <Ionicons name="flame" size={28} color={COLORS.coral} />
+          <View>
+            <Display style={{ fontSize: 30, lineHeight: 32 }} color={COLORS.coral}>
+              {streak} day{streak === 1 ? "" : "s"}
+            </Display>
+            <Label style={{ marginTop: 2 }}>
+              Streak · {today.completed > 0 ? "still alive" : "at risk"}
+            </Label>
           </View>
         </View>
+      </Card>
 
-        <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
-          <Stat label="Done" value={String(today.completed)} />
-          <Stat label="Skipped" value={String(today.skipped)} />
-          <Stat label="Focused" value={formatDuration(today.focusSeconds)} />
-        </View>
+      <View style={{ flexDirection: "row", gap: 10, marginTop: 12 }}>
+        <Stat label="Done" value={String(today.completed)} />
+        <Stat label="Skipped" value={String(today.skipped)} />
+        <Stat label="Focused" value={formatDuration(today.focusSeconds)} />
+      </View>
 
-        <Pressable onPress={onShare} style={shareBtn}>
-          <Ionicons name="share-outline" size={18} color={COLORS.ink} />
-          <Body style={{ fontFamily: FONTS.sansSemibold }} color={COLORS.ink}>
-            Share today
-          </Body>
-        </Pressable>
+      <Pressable
+        onPress={onShare}
+        style={{
+          marginTop: 14,
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 8,
+          borderRadius: RADIUS.pill,
+          backgroundColor: COLORS.coral,
+          paddingVertical: 16,
+        }}
+      >
+        <Ionicons name="share-outline" size={18} color={COLORS.ink} />
+        <Body style={{ fontFamily: FONTS.sansSemibold }} color={COLORS.ink}>
+          Share today
+        </Body>
+      </Pressable>
 
-        <Label style={{ marginTop: 32, marginBottom: 10 }}>Timeline</Label>
+      <View style={{ marginTop: 18 }}>
+        <Hint id="day.share">Tap Share to turn today into a clean image for your story.</Hint>
+      </View>
+
+      <View style={{ marginTop: 24 }}>
+        <SectionLabel>Timeline</SectionLabel>
         {todayTasks.length === 0 ? (
           <BodyMuted>Nothing logged yet today.</BodyMuted>
         ) : (
           <View style={{ gap: 8 }}>
-            {todayTasks.map((t) => {
-              const done = t.status === "done";
-              return (
-                <View key={t.id} style={row}>
-                  <Ionicons
-                    name={done ? "checkmark-circle" : "close-circle-outline"}
-                    size={20}
-                    color={done ? COLORS.coral : COLORS.subtle}
-                  />
-                  <Body style={{ marginLeft: 12, flex: 1, fontSize: 15 }}>{t.title}</Body>
-                  <Caption>{done ? `${t.durationMin}m` : "skip"}</Caption>
-                </View>
-              );
-            })}
+            {todayTasks.map((t, i) => (
+              <AnimatedRow key={t.id} index={i}>
+                <TaskRow
+                  task={t}
+                  variant={t.status === "done" ? "done" : "skipped"}
+                  goalTitle={goalTitle(t.goalId)}
+                />
+              </AnimatedRow>
+            ))}
           </View>
         )}
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </Screen>
   );
 }
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <View style={statCard}>
+    <Card style={{ flex: 1, borderRadius: RADIUS.xl }}>
       <Title style={{ fontSize: 26, lineHeight: 30 }}>{value}</Title>
       <Label style={{ marginTop: 4, color: COLORS.subtle }}>{label}</Label>
-    </View>
+    </Card>
   );
 }
-
-const streakCard = {
-  marginTop: 20,
-  borderRadius: RADIUS.x2,
-  borderWidth: 1,
-  borderColor: COLORS.coralDeep,
-  backgroundColor: "rgba(255,107,74,0.07)",
-  padding: 20,
-} as const;
-
-const statCard = {
-  flex: 1,
-  borderRadius: RADIUS.xl,
-  borderWidth: 1,
-  borderColor: COLORS.line,
-  backgroundColor: COLORS.card,
-  padding: 16,
-} as const;
-
-const shareBtn = {
-  marginTop: 14,
-  flexDirection: "row",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: 8,
-  borderRadius: RADIUS.pill,
-  backgroundColor: COLORS.coral,
-  paddingVertical: 16,
-} as const;
-
-const row = {
-  flexDirection: "row",
-  alignItems: "center",
-  borderRadius: RADIUS.lg,
-  borderWidth: 1,
-  borderColor: COLORS.line,
-  padding: 16,
-} as const;
