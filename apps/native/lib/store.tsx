@@ -16,6 +16,7 @@ type AppContextType = {
   addTask: (input: AddTaskInput) => void;
   removeTask: (id: string) => void;
   moveTask: (id: string, dir: "up" | "down") => void;
+  reorderQueue: (orderedIds: string[]) => void;
   completeTask: (id: string, focusSeconds: number) => void;
   skipTask: (id: string) => void;
   completeOnboarding: (goalTitle: string, taskTitle: string, durationMin: number) => void;
@@ -111,6 +112,19 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       [reordered[idx], reordered[swapWith]] = [reordered[swapWith], reordered[idx]];
       const others = s.tasks.filter((t) => t.status !== "pending");
       return { ...s, tasks: [...reordered, ...others] };
+    });
+  }, []);
+
+  const reorderQueue = useCallback((orderedIds: string[]) => {
+    setState((s) => {
+      const pending = s.tasks.filter((t) => t.status === "pending");
+      const byId = new Map(pending.map((t) => [t.id, t]));
+      const reordered = orderedIds
+        .map((id) => byId.get(id))
+        .filter((t): t is Task => Boolean(t));
+      const missing = pending.filter((t) => !orderedIds.includes(t.id));
+      const others = s.tasks.filter((t) => t.status !== "pending");
+      return { ...s, tasks: [...reordered, ...missing, ...others] };
     });
   }, []);
 
@@ -224,6 +238,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addTask,
       removeTask,
       moveTask,
+      reorderQueue,
       completeTask,
       skipTask,
       completeOnboarding,
@@ -239,6 +254,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       addTask,
       removeTask,
       moveTask,
+      reorderQueue,
       completeTask,
       skipTask,
       completeOnboarding,
