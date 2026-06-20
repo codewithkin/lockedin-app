@@ -71,6 +71,8 @@ export default function Layout() {
                   <Stack.Screen name="(tabs)" />
                   <Stack.Screen name="add-task" options={{ presentation: "modal" }} />
                   <Stack.Screen name="add-goal" options={{ presentation: "modal" }} />
+                  <Stack.Screen name="share" options={{ presentation: "modal" }} />
+                  <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal", gestureEnabled: false }} />
                   <Stack.Screen
                     name="first-win"
                     options={{ presentation: "fullScreenModal", gestureEnabled: false }}
