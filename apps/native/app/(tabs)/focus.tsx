@@ -44,13 +44,17 @@ export default function Focus() {
   function onDone() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     const wasFirstToday = today.completed === 0;
+    const wasLastInQueue = queue.length === 1;
     completeTask(currentTask!.id, elapsed);
     if (wasFirstToday) router.push("/first-win");
+    else if (wasLastInQueue) router.push("/day-summary");
   }
 
   function onSkip() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const wasLastInQueue = queue.length === 1;
     skipTask(currentTask!.id);
+    if (wasLastInQueue) router.push("/day-summary");
   }
 
   const variantProps: TimerVariantProps = {
