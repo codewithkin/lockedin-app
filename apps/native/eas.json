@@ -6,13 +6,22 @@
   "build": {
     "development": {
       "developmentClient": true,
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/lockedin"
+      }
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/lockedin"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "DATABASE_URL": "postgresql://user:password@localhost:5432/lockedin"
+      }
     }
   },
   "submit": {
