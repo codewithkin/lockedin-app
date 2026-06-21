@@ -3,10 +3,12 @@ import { useRouter } from "expo-router";
 import { Pressable, View } from "react-native";
 import Animated, { ZoomIn } from "react-native-reanimated";
 
+import { EmptyState } from "@/components/empty-state";
 import { AnimatedRow, Card, SectionLabel } from "@/components/primitives";
 import { Screen, ScreenHeader } from "@/components/screen";
 import { Body, BodyMuted, BodyStrong, Caption, Timer, Title } from "@/components/typography";
 import { dayKey, enumerateDays, formatDuration } from "@/lib/date";
+import { usePurchases } from "@/lib/purchases";
 import { useApp } from "@/lib/store";
 import { type DayRecord } from "@/lib/types";
 import { COLORS, RADIUS } from "@/lib/theme";
@@ -14,8 +16,21 @@ import { COLORS, RADIUS } from "@/lib/theme";
 export default function Streak() {
   const router = useRouter();
   const { state } = useApp();
+  const { isPro, paywallAvailable, presentPaywall, presentCustomerCenter } = usePurchases();
   const { streak, totalFocusSeconds, tasksCompleted, tasksSkipped } = state.stats;
   const history = state.history;
+
+  async function openProCta() {
+    if (isPro) {
+      await presentCustomerCenter();
+      return;
+    }
+    if (paywallAvailable) {
+      await presentPaywall();
+    } else {
+      router.push("/paywall");
+    }
+  }
 
   const todayKey = dayKey();
   const recorded = new Map(history.map((h) => [h.date, h]));
@@ -56,7 +71,7 @@ export default function Streak() {
       </View>
 
       <Pressable
-        onPress={() => router.push("/paywall")}
+        onPress={openProCta}
         style={({ pressed }) => ({
           marginTop: 12,
           flexDirection: "row",
@@ -70,10 +85,14 @@ export default function Streak() {
           opacity: pressed ? 0.8 : 1,
         })}
       >
-        <Ionicons name="sparkles" size={18} color={COLORS.coral} />
+        <Ionicons name={isPro ? "checkmark-circle" : "sparkles"} size={18} color={COLORS.coral} />
         <View style={{ flex: 1 }}>
-          <BodyStrong style={{ fontSize: 14 }}>Unlock history, templates & sync</BodyStrong>
-          <Caption style={{ marginTop: 2 }}>Keep your streak going with Pro</Caption>
+          <BodyStrong style={{ fontSize: 14 }}>
+            {isPro ? "LockedIn Pro" : "Unlock history, templates & sync"}
+          </BodyStrong>
+          <Caption style={{ marginTop: 2 }}>
+            {isPro ? "Active · tap to manage your subscription" : "Keep your streak going with Pro"}
+          </Caption>
         </View>
         <Ionicons name="chevron-forward" size={18} color={COLORS.subtle} />
       </Pressable>
@@ -81,7 +100,12 @@ export default function Streak() {
       <View style={{ marginTop: 24 }}>
         <SectionLabel>History</SectionLabel>
         {history.length === 0 ? (
-          <BodyMuted>No history yet. Complete a task to begin.</BodyMuted>
+          <EmptyState
+            compact
+            icon="flame-outline"
+            title="No streak yet"
+            message="Finish one task today and your streak starts. Miss a day and it resets."
+          />
         ) : (
           <View style={{ gap: 8 }}>
             {historyRows.map((h, i) => {
