@@ -24,7 +24,9 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { Uniwind } from "uniwind";
 
+import { ToastProvider } from "@/components/toast";
 import { AppThemeProvider } from "@/contexts/app-theme-context";
+import { PurchasesProvider } from "@/lib/purchases";
 import { AppProvider } from "@/lib/store";
 import { COLORS } from "@/lib/theme";
 
@@ -59,26 +61,33 @@ export default function Layout() {
           <AppThemeProvider>
             <HeroUINativeProvider>
               <AppProvider>
-                <StatusBar style="light" />
-                <Stack
-                  screenOptions={{
-                    headerShown: false,
-                    contentStyle: { backgroundColor: COLORS.ink },
-                  }}
-                >
-                  <Stack.Screen name="index" />
-                  <Stack.Screen name="onboarding" />
-                  <Stack.Screen name="(tabs)" />
-                  <Stack.Screen name="add-task" options={{ presentation: "modal" }} />
-                  <Stack.Screen name="add-goal" options={{ presentation: "modal" }} />
-                  <Stack.Screen name="edit-task" options={{ presentation: "modal" }} />
-                  <Stack.Screen name="share" options={{ presentation: "modal" }} />
-                  <Stack.Screen name="paywall" options={{ presentation: "fullScreenModal", gestureEnabled: false }} />
-                  <Stack.Screen
-                    name="first-win"
-                    options={{ presentation: "fullScreenModal", gestureEnabled: false }}
-                  />
-                </Stack>
+                <PurchasesProvider>
+                  <ToastProvider>
+                    <StatusBar style="light" />
+                    <Stack
+                      screenOptions={{
+                        headerShown: false,
+                        contentStyle: { backgroundColor: COLORS.ink },
+                      }}
+                    >
+                      <Stack.Screen name="index" />
+                      <Stack.Screen name="onboarding" />
+                      <Stack.Screen name="(tabs)" />
+                      <Stack.Screen name="add-task" options={{ presentation: "modal" }} />
+                      <Stack.Screen name="add-goal" options={{ presentation: "modal" }} />
+                      <Stack.Screen name="edit-task" options={{ presentation: "modal" }} />
+                      <Stack.Screen name="share" options={{ presentation: "modal" }} />
+                      <Stack.Screen
+                        name="paywall"
+                        options={{ presentation: "fullScreenModal", gestureEnabled: false }}
+                      />
+                      <Stack.Screen
+                        name="first-win"
+                        options={{ presentation: "fullScreenModal", gestureEnabled: false }}
+                      />
+                    </Stack>
+                  </ToastProvider>
+                </PurchasesProvider>
               </AppProvider>
             </HeroUINativeProvider>
           </AppThemeProvider>
