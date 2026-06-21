@@ -1,19 +1,21 @@
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { Pressable, View } from "react-native";
+import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { PrimaryButton } from "@/components/buttons";
 import { EmptyState } from "@/components/empty-state";
-import { BodyMuted, Caption, Label, MonoTimer, Title } from "@/components/typography";
-import { formatClock } from "@/lib/date";
+import { AmbientTimer } from "@/components/timers/ambient-timer";
+import { NumeralsTimer } from "@/components/timers/numerals-timer";
+import { RingTimer } from "@/components/timers/ring-timer";
+import { type TimerVariantProps } from "@/components/timers/types";
 import { useApp } from "@/lib/store";
+import { type TimerStyle } from "@/lib/types";
 import { useCountdown } from "@/lib/use-countdown";
 import { COLORS, FONTS } from "@/lib/theme";
 
 export default function Focus() {
   const router = useRouter();
-  const { currentTask, queue, state, today, completeTask, skipTask, extendSession } = useApp();
+  const { currentTask, queue, state, today, completeTask, skipTask, setTimerStyle } = useApp();
   const countdown = useCountdown();
 
   if (!currentTask) {
@@ -34,9 +36,9 @@ export default function Focus() {
 
   const goal = state.goals.find((g) => g.id === currentTask.goalId);
   const fallbackTotal = currentTask.durationMin * 60;
+  const total = countdown.active ? countdown.total : fallbackTotal;
   const remaining = countdown.active ? countdown.remaining : fallbackTotal;
   const elapsed = countdown.active ? countdown.elapsed : 0;
-  const remainingAfter = queue.length - 1;
   const timeUp = countdown.active && remaining === 0;
 
   function onDone() {
@@ -51,67 +53,82 @@ export default function Focus() {
     skipTask(currentTask!.id);
   }
 
-  function onExtend(min: number) {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    extendSession(min);
-  }
+  const variantProps: TimerVariantProps = {
+    taskTitle: currentTask.title,
+    goalTitle: goal?.title,
+    remaining,
+    total,
+    elapsed,
+    index: today.completed + 1,
+    count: today.completed + queue.length,
+    timeUp,
+    onDone,
+    onSkip,
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
-      <View style={{ flex: 1, paddingHorizontal: 28 }}>
-        <View style={{ alignItems: "center", paddingTop: 16 }}>
-          <Label>Now · Focusing</Label>
-          {goal ? (
-            <Caption style={{ marginTop: 6 }} color={COLORS.subtle}>
-              {goal.title}
-            </Caption>
-          ) : null}
-        </View>
-
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-          <Title style={{ textAlign: "center" }}>{currentTask.title}</Title>
-          <MonoTimer style={{ marginTop: 32 }} color={timeUp ? COLORS.coral : COLORS.fg}>
-            {formatClock(remaining)}
-          </MonoTimer>
-          <Caption style={{ marginTop: 10 }}>
-            {timeUp
-              ? "Time's up — close it out."
-              : remainingAfter > 0
-                ? `${remainingAfter} more after this`
-                : "Last one in the queue"}
-          </Caption>
-
-          <View style={{ flexDirection: "row", gap: 10, marginTop: 24 }}>
-            <ExtendButton label="+5 min" onPress={() => onExtend(5)} />
-            <ExtendButton label="+15 min" onPress={() => onExtend(15)} />
-          </View>
-        </View>
-
-        <View style={{ gap: 8, paddingBottom: 12 }}>
-          <PrimaryButton label="Done" onPress={onDone} haptic={false} />
-          <Pressable onPress={onSkip} style={{ alignItems: "center", paddingVertical: 14 }}>
-            <BodyMuted style={{ fontSize: 15 }}>Skip</BodyMuted>
-          </Pressable>
-        </View>
+      <View style={{ flex: 1 }}>
+        {state.timerStyle === "ring" ? (
+          <RingTimer {...variantProps} />
+        ) : state.timerStyle === "numerals" ? (
+          <NumeralsTimer {...variantProps} />
+        ) : (
+          <AmbientTimer {...variantProps} />
+        )}
       </View>
+      <StyleSwitcher value={state.timerStyle} onChange={setTimerStyle} />
     </SafeAreaView>
   );
 }
 
-function ExtendButton({ label, onPress }: { label: string; onPress: () => void }) {
+const STYLES: { key: TimerStyle; label: string }[] = [
+  { key: "ring", label: "Ring" },
+  { key: "numerals", label: "Numerals" },
+  { key: "ambient", label: "Ambient" },
+];
+
+function StyleSwitcher({
+  value,
+  onChange,
+}: {
+  value: TimerStyle;
+  onChange: (style: TimerStyle) => void;
+}) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => ({
-        borderRadius: 999,
-        borderWidth: 1,
-        borderColor: COLORS.line,
-        paddingHorizontal: 18,
-        paddingVertical: 10,
-        opacity: pressed ? 0.6 : 1,
+    <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, paddingVertical: 10 }}>
+      {STYLES.map((o) => {
+        const active = o.key === value;
+        return (
+          <Pressable
+            key={o.key}
+            onPress={() => {
+              Haptics.selectionAsync();
+              onChange(o.key);
+            }}
+            style={{
+              paddingHorizontal: 14,
+              paddingVertical: 6,
+              borderRadius: 999,
+              backgroundColor: active ? "rgba(255,107,74,0.12)" : "transparent",
+              borderWidth: 1,
+              borderColor: active ? COLORS.coralDeep : "transparent",
+            }}
+          >
+            <Text
+              style={{
+                fontFamily: FONTS.monoMedium,
+                fontSize: 11,
+                letterSpacing: 1,
+                textTransform: "uppercase",
+                color: active ? COLORS.coral : COLORS.subtle,
+              }}
+            >
+              {o.label}
+            </Text>
+          </Pressable>
+        );
       })}
-    >
-      <BodyMuted style={{ fontFamily: FONTS.monoMedium, fontSize: 13 }}>{label}</BodyMuted>
-    </Pressable>
+    </View>
   );
 }
