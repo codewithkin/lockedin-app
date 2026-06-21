@@ -2,12 +2,13 @@ import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PrimaryButton } from "@/components/buttons";
 import { FadeToInk } from "@/components/gradient";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import { PlanOption } from "@/components/plan-option";
 import { BodyMuted, Caption, Display, Label } from "@/components/typography";
 import { useApp } from "@/lib/store";
@@ -28,8 +29,8 @@ export default function Paywall() {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }} edges={["top", "bottom"]}>
       <View style={{ height: 200 }}>
-        <Image
-          source={{ uri: STILL_IMAGE }}
+        <ImageWithFallback
+          uri={STILL_IMAGE}
           style={{
             position: "absolute",
             top: 0,
@@ -38,7 +39,6 @@ export default function Paywall() {
             height: 200,
             borderBottomLeftRadius: 36,
           }}
-          resizeMode="cover"
         />
         <FadeToInk height={130} />
         <Pressable

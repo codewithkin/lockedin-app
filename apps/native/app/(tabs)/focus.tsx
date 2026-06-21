@@ -1,10 +1,10 @@
-import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { PrimaryButton } from "@/components/buttons";
+import { EmptyState } from "@/components/empty-state";
 import { BodyMuted, Caption, Label, MonoTimer, Title } from "@/components/typography";
 import { formatClock } from "@/lib/date";
 import { useApp } from "@/lib/store";
@@ -19,15 +19,14 @@ export default function Focus() {
   if (!currentTask) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
-        <View style={{ flex: 1, alignItems: "center", justifyContent: "center", paddingHorizontal: 32 }}>
-          <Ionicons name="checkmark-done-circle-outline" size={56} color="#3f3f46" />
-          <Title style={{ marginTop: 20, textAlign: "center" }}>Nothing queued.</Title>
-          <BodyMuted style={{ marginTop: 8, textAlign: "center" }}>
-            Add a task and you&apos;re straight back in the loop.
-          </BodyMuted>
-          <View style={{ marginTop: 28, width: "100%" }}>
-            <PrimaryButton label="Add a task" onPress={() => router.push("/tasks")} />
-          </View>
+        <View style={{ flex: 1, justifyContent: "center" }}>
+          <EmptyState
+            icon="checkmark-done-circle-outline"
+            title="Nothing queued."
+            message="Add a task and you're straight back in the loop."
+            actionLabel="Add a task"
+            onAction={() => router.push("/tasks")}
+          />
         </View>
       </SafeAreaView>
     );

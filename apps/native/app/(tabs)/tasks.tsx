@@ -9,10 +9,11 @@ import ReorderableList, {
   type ReorderableListReorderEvent,
 } from "react-native-reorderable-list";
 
+import { EmptyState } from "@/components/empty-state";
 import { Hint } from "@/components/hint";
 import { AddRow, SectionLabel } from "@/components/primitives";
 import { ScreenHeader } from "@/components/screen";
-import { BodyMuted, Label } from "@/components/typography";
+import { Label } from "@/components/typography";
 import { TaskRow } from "@/components/task-row";
 import { formatClock } from "@/lib/date";
 import { completedToday } from "@/lib/selectors";
@@ -91,7 +92,16 @@ export default function Tasks() {
             <View style={{ marginTop: 16 }}>
               <SectionLabel>Up next</SectionLabel>
               {upNext.length === 0 ? (
-                <BodyMuted style={{ marginBottom: 12 }}>Nothing queued.</BodyMuted>
+                <EmptyState
+                  compact
+                  icon="list-outline"
+                  title={currentTask ? "Queue's clear" : "Nothing queued"}
+                  message={
+                    currentTask
+                      ? "Line up your next task to keep the loop going."
+                      : "Add your first task and the timer starts the moment you open Focus."
+                  }
+                />
               ) : null}
             </View>
           </View>

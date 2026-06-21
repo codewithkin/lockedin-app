@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useState } from "react";
-import { Image, Pressable, ScrollView, TextInput, View } from "react-native";
+import { Pressable, ScrollView, TextInput, View } from "react-native";
 import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -8,6 +8,7 @@ import { AvatarStack } from "@/components/avatar-stack";
 import { PrimaryButton } from "@/components/buttons";
 import { FadeToInk } from "@/components/gradient";
 import { Hint } from "@/components/hint";
+import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Body, BodyMuted, Caption, Display, Label } from "@/components/typography";
 import { useApp } from "@/lib/store";
 import { COLORS, DURATIONS, FONTS, RADIUS } from "@/lib/theme";
@@ -49,10 +50,9 @@ export default function Onboarding() {
         {step === 0 && (
           <Animated.View key="s0" entering={FadeIn.duration(320)} style={{ flex: 1 }}>
             <View style={{ position: "absolute", top: 0, left: 0, right: 0, height: 320 }}>
-              <Image
-                source={{ uri: HERO_IMAGE }}
+              <ImageWithFallback
+                uri={HERO_IMAGE}
                 style={{ width: "100%", height: "100%", borderRadius: RADIUS.x2 }}
-                resizeMode="cover"
               />
               <FadeToInk height={200} />
             </View>

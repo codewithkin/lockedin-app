@@ -2,11 +2,12 @@ import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Pressable, View } from "react-native";
 
+import { EmptyState } from "@/components/empty-state";
 import { Hint } from "@/components/hint";
 import { AnimatedRow, Card, SectionLabel } from "@/components/primitives";
 import { Screen, ScreenHeader } from "@/components/screen";
 import { TaskRow } from "@/components/task-row";
-import { Body, BodyMuted, Display, Label, Title } from "@/components/typography";
+import { Body, Display, Label, Title } from "@/components/typography";
 import { formatDateLabel, formatDuration, isToday } from "@/lib/date";
 import { useApp } from "@/lib/store";
 import { COLORS, FONTS, RADIUS } from "@/lib/theme";
@@ -83,7 +84,12 @@ export default function Day() {
       <View style={{ marginTop: 24 }}>
         <SectionLabel>Timeline</SectionLabel>
         {todayTasks.length === 0 ? (
-          <BodyMuted>Nothing logged yet today.</BodyMuted>
+          <EmptyState
+            compact
+            icon="time-outline"
+            title="Nothing logged yet"
+            message="Finish or skip a task and it shows up here as your record for the day."
+          />
         ) : (
           <View style={{ gap: 8 }}>
             {todayTasks.map((t, i) => (

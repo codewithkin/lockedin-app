@@ -10,6 +10,7 @@ import { captureRef } from "react-native-view-shot";
 
 import { PrimaryButton } from "@/components/buttons";
 import { ShareCard } from "@/components/share-card";
+import { useToast } from "@/components/toast";
 import { BodyMuted, Label } from "@/components/typography";
 import { formatDateLabel } from "@/lib/date";
 import { useApp } from "@/lib/store";
@@ -18,6 +19,7 @@ import { COLORS } from "@/lib/theme";
 export default function ShareScreen() {
   const router = useRouter();
   const { state, today } = useApp();
+  const { show } = useToast();
   const cardRef = useRef<View>(null);
   const [busy, setBusy] = useState(false);
 
@@ -33,7 +35,7 @@ export default function ShareScreen() {
         await Share.share({ url: uri });
       }
     } catch {
-      // user dismissed or capture failed
+      show("Couldn't open the share sheet. Try again.", "error");
     } finally {
       setBusy(false);
     }
