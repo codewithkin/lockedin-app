@@ -56,11 +56,13 @@ export default function Layout() {
                       screenOptions={{
                         headerShown: false,
                         contentStyle: { backgroundColor: COLORS.ink },
+                        animation: "slide_from_right",
+                        animationDuration: 280,
                       }}
                     >
                       <Stack.Screen name="index" />
-                      <Stack.Screen name="onboarding" />
-                      <Stack.Screen name="(tabs)" />
+                      <Stack.Screen name="onboarding" options={{ animation: "fade" }} />
+                      <Stack.Screen name="(tabs)" options={{ animation: "fade" }} />
                       <Stack.Screen name="add-task" options={{ presentation: "modal" }} />
                       <Stack.Screen name="add-goal" options={{ presentation: "modal" }} />
                       <Stack.Screen name="edit-task" options={{ presentation: "modal" }} />
@@ -73,7 +75,11 @@ export default function Layout() {
                       />
                       <Stack.Screen
                         name="first-win"
-                        options={{ presentation: "fullScreenModal", gestureEnabled: false }}
+                        options={{
+                          presentation: "fullScreenModal",
+                          gestureEnabled: false,
+                          animation: "fade",
+                        }}
                       />
                     </Stack>
                     </ToastProvider>
