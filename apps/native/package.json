@@ -18,6 +18,7 @@
     "@lockedin/env": "workspace:*",
     "dotenv": "catalog:",
     "expo": "~56.0.3",
+    "expo-audio": "~56.0.12",
     "expo-constants": "~56.0.14",
     "expo-dev-client": "~56.0.20",
     "expo-font": "~56.0.5",

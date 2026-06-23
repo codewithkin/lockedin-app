@@ -7,6 +7,7 @@ import { Chip, DurationPicker, Field } from "@/components/inputs";
 import { ModalScreen } from "@/components/modal-screen";
 import { SectionLabel } from "@/components/primitives";
 import { BodyMuted } from "@/components/typography";
+import { playTaskAdd } from "@/lib/sounds";
 import { useApp } from "@/lib/store";
 
 export default function AddTask() {
@@ -19,6 +20,7 @@ export default function AddTask() {
   function submit() {
     if (title.trim().length === 0) return;
     addTask({ title, durationMin: duration, goalId });
+    playTaskAdd();
     router.back();
   }
 

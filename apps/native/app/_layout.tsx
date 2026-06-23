@@ -14,6 +14,7 @@ import { NotificationsProvider } from "@/components/notifications-provider";
 import { ToastProvider } from "@/components/toast";
 import { AppThemeProvider } from "@/contexts/app-theme-context";
 import { PurchasesProvider } from "@/lib/purchases";
+import { preloadSounds } from "@/lib/sounds";
 import { AppProvider } from "@/lib/store";
 import { COLORS } from "@/lib/theme";
 
@@ -35,6 +36,7 @@ export default function Layout() {
 
   useEffect(() => {
     Uniwind.setTheme("dark");
+    preloadSounds();
   }, []);
 
   if (!fontsLoaded) {

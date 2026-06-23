@@ -10,6 +10,7 @@ import { FadeToInk } from "@/components/gradient";
 import { Hint } from "@/components/hint";
 import { ImageWithFallback } from "@/components/image-with-fallback";
 import { Body, BodyMuted, Caption, Display, Label } from "@/components/typography";
+import { playStartFocus } from "@/lib/sounds";
 import { useApp } from "@/lib/store";
 import { COLORS, DURATIONS, FONTS, RADIUS } from "@/lib/theme";
 
@@ -33,6 +34,7 @@ export default function Onboarding() {
   function finish() {
     if (!taskReady) return;
     completeOnboarding(goal, task, duration);
+    playStartFocus();
     router.replace("/focus");
   }
 

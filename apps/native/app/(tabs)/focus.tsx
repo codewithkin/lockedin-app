@@ -1,7 +1,7 @@
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -11,6 +11,7 @@ import { AmbientTimer } from "@/components/timers/ambient-timer";
 import { NumeralsTimer } from "@/components/timers/numerals-timer";
 import { RingTimer } from "@/components/timers/ring-timer";
 import { type TimerVariantProps } from "@/components/timers/types";
+import { playStartFocus, playTaskComplete } from "@/lib/sounds";
 import { useApp } from "@/lib/store";
 import { type TimerStyle } from "@/lib/types";
 import { useCountdown } from "@/lib/use-countdown";
@@ -20,6 +21,16 @@ export default function Focus() {
   const router = useRouter();
   const { currentTask, queue, state, today, completeTask, skipTask, setTimerStyle } = useApp();
   const countdown = useCountdown();
+
+  // Play the start chime when a new focus session begins (advancing to a new task).
+  const prevTaskId = useRef<string | null>(null);
+  useEffect(() => {
+    const id = currentTask?.id ?? null;
+    if (id && prevTaskId.current !== null && prevTaskId.current !== id) {
+      playStartFocus();
+    }
+    prevTaskId.current = id;
+  }, [currentTask?.id]);
 
   // Keep the screen awake while a focus session is running and visible.
   useFocusEffect(
@@ -57,6 +68,7 @@ export default function Focus() {
 
   function onDone() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    playTaskComplete();
     const wasFirstToday = today.completed === 0;
     const wasLastInQueue = queue.length === 1;
     completeTask(currentTask!.id, elapsed);
