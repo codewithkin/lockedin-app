@@ -40,11 +40,17 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#000000"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS",
+        "android.permission.FOREGROUND_SERVICE",
+        "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
+      ]
     },
     "extra": {
       "eas": {
-        "projectId": "926ecf70-70ed-473c-8d3a-8bce7e63a955"
+        "projectId": "29d837a2-e52d-4466-b3ce-bab4e1764b1f"
       }
     }
   }
