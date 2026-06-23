@@ -5,6 +5,7 @@ import { loadState, saveState } from "./storage";
 import {
   type DayRecord,
   type Goal,
+  type NotificationPrefs,
   type PersistedState,
   type Task,
   type TimerStyle,
@@ -31,6 +32,7 @@ type AppContextType = {
   extendSession: (minutes: number) => void;
   setPrimaryGoal: (id: string) => void;
   setTimerStyle: (style: TimerStyle) => void;
+  setNotificationPref: (key: keyof NotificationPrefs, value: boolean) => void;
 };
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -74,6 +76,12 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     primaryGoalId: null,
     session: null,
     timerStyle: "ring",
+    notifications: {
+      timerEnd: true,
+      daily: true,
+      streakRisk: true,
+      taskNudge: true,
+    },
   }));
 
   useEffect(() => {
@@ -276,6 +284,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, timerStyle: style }));
   }, []);
 
+  const setNotificationPref = useCallback((key: keyof NotificationPrefs, value: boolean) => {
+    setState((s) => ({ ...s, notifications: { ...s.notifications, [key]: value } }));
+  }, []);
+
   const hideHintForever = useCallback((id: string) => {
     setState((s) =>
       s.dismissedHints.includes(id)
@@ -329,6 +341,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       extendSession,
       setPrimaryGoal,
       setTimerStyle,
+      setNotificationPref,
     }),
     [
       ready,
@@ -349,6 +362,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       extendSession,
       setPrimaryGoal,
       setTimerStyle,
+      setNotificationPref,
     ],
   );
 

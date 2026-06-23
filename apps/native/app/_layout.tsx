@@ -66,6 +66,7 @@ export default function Layout() {
                       <Stack.Screen name="edit-task" options={{ presentation: "modal" }} />
                       <Stack.Screen name="share" options={{ presentation: "modal" }} />
                       <Stack.Screen name="day-summary" options={{ presentation: "modal" }} />
+                      <Stack.Screen name="settings" options={{ presentation: "modal" }} />
                       <Stack.Screen
                         name="paywall"
                         options={{ presentation: "fullScreenModal", gestureEnabled: false }}

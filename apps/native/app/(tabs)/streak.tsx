@@ -52,7 +52,14 @@ export default function Streak() {
 
   return (
     <Screen>
-      <ScreenHeader title="Streak" />
+      <ScreenHeader
+        title="Streak"
+        right={
+          <Pressable onPress={() => router.push("/settings")} hitSlop={10} style={{ marginTop: 6 }}>
+            <Ionicons name="settings-outline" size={22} color={COLORS.subtle} />
+          </Pressable>
+        }
+      />
 
       <View style={{ alignItems: "center", paddingVertical: 36 }}>
         <Animated.View entering={ZoomIn.duration(360)} style={{ alignItems: "center" }}>

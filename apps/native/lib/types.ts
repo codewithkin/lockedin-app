@@ -41,6 +41,13 @@ export type FocusSession = {
 
 export type TimerStyle = "ring" | "numerals" | "ambient";
 
+export type NotificationPrefs = {
+  timerEnd: boolean;
+  daily: boolean;
+  streakRisk: boolean;
+  taskNudge: boolean;
+};
+
 export type PersistedState = {
   onboarded: boolean;
   goals: Goal[];
@@ -51,6 +58,7 @@ export type PersistedState = {
   primaryGoalId: string | null;
   session: FocusSession | null;
   timerStyle: TimerStyle;
+  notifications: NotificationPrefs;
 };
 
 export const emptyState: PersistedState = {
@@ -69,4 +77,10 @@ export const emptyState: PersistedState = {
   primaryGoalId: null,
   session: null,
   timerStyle: "ring",
+  notifications: {
+    timerEnd: true,
+    daily: true,
+    streakRisk: true,
+    taskNudge: true,
+  },
 };

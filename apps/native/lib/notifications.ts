@@ -86,6 +86,8 @@ export async function scheduleDailyReminder(hour = 9, minute = 0) {
   });
 }
 
+export const cancelDailyReminder = () => cancel(NOTIF_ID.daily);
+
 // Evening reminder, only while the streak is still at risk today.
 export async function scheduleStreakRisk(hour = 20, minute = 0) {
   await cancel(NOTIF_ID.streakRisk);

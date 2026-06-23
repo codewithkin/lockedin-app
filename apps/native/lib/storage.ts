@@ -20,6 +20,7 @@ export async function loadState(): Promise<PersistedState> {
       primaryGoalId: parsed.primaryGoalId ?? null,
       session: parsed.session ?? null,
       timerStyle: parsed.timerStyle ?? "ring",
+      notifications: { ...emptyState.notifications, ...(parsed.notifications ?? {}) },
     };
   } catch {
     return emptyState;
