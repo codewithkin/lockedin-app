@@ -1,9 +1,12 @@
 import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
+import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback } from "react";
 import { Pressable, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { EmptyState } from "@/components/empty-state";
+import { FocusBackground } from "@/components/focus-background";
 import { AmbientTimer } from "@/components/timers/ambient-timer";
 import { NumeralsTimer } from "@/components/timers/numerals-timer";
 import { RingTimer } from "@/components/timers/ring-timer";
@@ -17,6 +20,17 @@ export default function Focus() {
   const router = useRouter();
   const { currentTask, queue, state, today, completeTask, skipTask, setTimerStyle } = useApp();
   const countdown = useCountdown();
+
+  // Keep the screen awake while a focus session is running and visible.
+  useFocusEffect(
+    useCallback(() => {
+      if (!countdown.active) return;
+      activateKeepAwakeAsync("lockedin-focus");
+      return () => {
+        deactivateKeepAwake("lockedin-focus");
+      };
+    }, [countdown.active]),
+  );
 
   if (!currentTask) {
     return (
@@ -72,6 +86,7 @@ export default function Focus() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
+      <FocusBackground />
       <View style={{ flex: 1 }}>
         {state.timerStyle === "ring" ? (
           <RingTimer {...variantProps} />
