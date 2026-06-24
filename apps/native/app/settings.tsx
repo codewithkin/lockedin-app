@@ -3,6 +3,7 @@ import { ScrollView, Switch, View } from "react-native";
 
 import { ModalScreen } from "@/components/modal-screen";
 import { Card, SectionLabel } from "@/components/primitives";
+import { TimerStylePicker } from "@/components/timer-style-picker";
 import { BodyMuted, BodyStrong, Caption } from "@/components/typography";
 import { useApp } from "@/lib/store";
 import { COLORS } from "@/lib/theme";
@@ -47,7 +48,10 @@ export default function Settings() {
   return (
     <ModalScreen title="Settings">
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 48 }}>
-        <SectionLabel>Notifications</SectionLabel>
+        <SectionLabel>Focus theme</SectionLabel>
+        <TimerStylePicker />
+
+        <SectionLabel style={{ marginTop: 28 }}>Notifications</SectionLabel>
         <View style={{ gap: 10 }}>
           {ROWS.map((r) => (
             <Card key={r.key} style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
