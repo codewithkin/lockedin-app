@@ -37,6 +37,8 @@ export type FocusSession = {
   taskId: string;
   startedAt: string;
   durationSec: number;
+  pausedAt: string | null;
+  pausedAccumSec: number;
 };
 
 export type TimerStyle = "ring" | "numerals" | "ambient";
@@ -57,6 +59,7 @@ export type PersistedState = {
   dismissedHints: string[];
   primaryGoalId: string | null;
   session: FocusSession | null;
+  activeTaskId: string | null;
   timerStyle: TimerStyle;
   notifications: NotificationPrefs;
 };
@@ -76,6 +79,7 @@ export const emptyState: PersistedState = {
   dismissedHints: [],
   primaryGoalId: null,
   session: null,
+  activeTaskId: null,
   timerStyle: "ring",
   notifications: {
     timerEnd: true,

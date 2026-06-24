@@ -4,6 +4,7 @@ import { dayKey, isToday, isYesterday, newId } from "./date";
 import { loadState, saveState } from "./storage";
 import {
   type DayRecord,
+  type FocusSession,
   type Goal,
   type NotificationPrefs,
   type PersistedState,
@@ -20,10 +21,17 @@ type AppContextType = {
   queue: Task[];
   today: { completed: number; skipped: number; focusSeconds: number };
   addGoal: (title: string) => Goal;
+  editGoal: (id: string, title: string) => void;
+  removeGoal: (id: string) => void;
   addTask: (input: AddTaskInput) => void;
+  addTasks: (inputs: AddTaskInput[]) => void;
   removeTask: (id: string) => void;
   moveTask: (id: string, dir: "up" | "down") => void;
   reorderQueue: (orderedIds: string[]) => void;
+  setActiveTask: (id: string) => void;
+  clearActiveTask: () => void;
+  pauseSession: () => void;
+  resumeSession: () => void;
   completeTask: (id: string, focusSeconds: number) => void;
   skipTask: (id: string) => void;
   completeOnboarding: (goalTitle: string, taskTitle: string, durationMin: number) => void;
@@ -58,6 +66,16 @@ function upsertHistory(history: DayRecord[], record: DayRecord): DayRecord[] {
   return [...rest, record].sort((a, b) => (a.date < b.date ? 1 : -1));
 }
 
+function makeSession(task: Task): FocusSession {
+  return {
+    taskId: task.id,
+    startedAt: new Date().toISOString(),
+    durationSec: task.durationMin * 60,
+    pausedAt: null,
+    pausedAccumSec: 0,
+  };
+}
+
 export function AppProvider({ children }: { children: React.ReactNode }) {
   const [ready, setReady] = useState(false);
   const [state, setState] = useState<PersistedState>(() => ({
@@ -75,6 +93,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     dismissedHints: [],
     primaryGoalId: null,
     session: null,
+    activeTaskId: null,
     timerStyle: "ring",
     notifications: {
       timerEnd: true,
@@ -110,18 +129,50 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     return goal;
   }, []);
 
-  const addTask = useCallback((input: AddTaskInput) => {
+  const editGoal = useCallback((id: string, title: string) => {
+    setState((s) => ({
+      ...s,
+      goals: s.goals.map((g) => (g.id === id ? { ...g, title: title.trim() } : g)),
+    }));
+  }, []);
+
+  const removeGoal = useCallback((id: string) => {
     setState((s) => {
-      const task: Task = {
-        id: newId(),
-        goalId: input.goalId ?? s.primaryGoalId ?? null,
-        title: input.title.trim(),
-        durationMin: input.durationMin,
-        status: "pending",
-        createdAt: new Date().toISOString(),
+      const tasks = s.tasks.filter((t) => t.goalId !== id);
+      const goals = s.goals.filter((g) => g.id !== id);
+      const primaryGoalId = s.primaryGoalId === id ? (goals[0]?.id ?? null) : s.primaryGoalId;
+      const clearedActive = s.tasks.some((t) => t.goalId === id && t.id === s.activeTaskId);
+      return {
+        ...s,
+        tasks,
+        goals,
+        primaryGoalId,
+        activeTaskId: clearedActive ? null : s.activeTaskId,
+        session: clearedActive ? null : s.session,
       };
-      return { ...s, tasks: [...s.tasks, task] };
     });
+  }, []);
+
+  const buildTask = (input: AddTaskInput, primaryGoalId: string | null): Task => ({
+    id: newId(),
+    goalId: input.goalId ?? primaryGoalId ?? null,
+    title: input.title.trim(),
+    durationMin: input.durationMin,
+    status: "pending",
+    createdAt: new Date().toISOString(),
+  });
+
+  const addTask = useCallback((input: AddTaskInput) => {
+    setState((s) => ({ ...s, tasks: [...s.tasks, buildTask(input, s.primaryGoalId)] }));
+  }, []);
+
+  const addTasks = useCallback((inputs: AddTaskInput[]) => {
+    const valid = inputs.filter((i) => i.title.trim().length > 0);
+    if (valid.length === 0) return;
+    setState((s) => ({
+      ...s,
+      tasks: [...s.tasks, ...valid.map((i) => buildTask(i, s.primaryGoalId))],
+    }));
   }, []);
 
   const removeTask = useCallback((id: string) => {
@@ -152,6 +203,41 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       const missing = pending.filter((t) => !orderedIds.includes(t.id));
       const others = s.tasks.filter((t) => t.status !== "pending");
       return { ...s, tasks: [...reordered, ...missing, ...others] };
+    });
+  }, []);
+
+  const setActiveTask = useCallback((id: string) => {
+    setState((s) => {
+      const task = s.tasks.find((t) => t.id === id && t.status === "pending");
+      if (!task) return s;
+      return { ...s, activeTaskId: id, session: makeSession(task) };
+    });
+  }, []);
+
+  const clearActiveTask = useCallback(() => {
+    setState((s) => ({ ...s, activeTaskId: null, session: null }));
+  }, []);
+
+  const pauseSession = useCallback(() => {
+    setState((s) =>
+      s.session && !s.session.pausedAt
+        ? { ...s, session: { ...s.session, pausedAt: new Date().toISOString() } }
+        : s,
+    );
+  }, []);
+
+  const resumeSession = useCallback(() => {
+    setState((s) => {
+      if (!s.session || !s.session.pausedAt) return s;
+      const pausedFor = (Date.now() - new Date(s.session.pausedAt).getTime()) / 1000;
+      return {
+        ...s,
+        session: {
+          ...s.session,
+          pausedAt: null,
+          pausedAccumSec: s.session.pausedAccumSec + Math.max(0, pausedFor),
+        },
+      };
     });
   }, []);
 
@@ -193,7 +279,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         streakAfter: stats.streak,
       });
 
-      return { ...s, tasks, stats, history };
+      const clearActive = s.activeTaskId === id;
+      return {
+        ...s,
+        tasks,
+        stats,
+        history,
+        activeTaskId: clearActive ? null : s.activeTaskId,
+        session: clearActive ? null : s.session,
+      };
     });
   }, []);
 
@@ -213,7 +307,15 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         focusSeconds: t.focusSeconds,
         streakAfter: stats.streak,
       });
-      return { ...s, tasks, stats, history };
+      const clearActive = s.activeTaskId === id;
+      return {
+        ...s,
+        tasks,
+        stats,
+        history,
+        activeTaskId: clearActive ? null : s.activeTaskId,
+        session: clearActive ? null : s.session,
+      };
     });
   }, []);
 
@@ -239,6 +341,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           goals: [goal],
           tasks: [task],
           primaryGoalId: goal.id,
+          activeTaskId: task.id,
+          session: makeSession(task),
         };
       });
     },
@@ -258,11 +362,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       );
       let session = s.session;
       if (patch.durationMin !== undefined && s.session && s.session.taskId === id) {
-        session = {
-          ...s.session,
-          durationSec: patch.durationMin * 60,
-          startedAt: new Date().toISOString(),
-        };
+        session = { ...s.session, durationSec: patch.durationMin * 60 };
       }
       return { ...s, tasks, session };
     });
@@ -297,27 +397,24 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const currentTask = useMemo(
-    () => state.tasks.find((t) => t.status === "pending") ?? null,
-    [state.tasks],
+    () =>
+      state.activeTaskId
+        ? (state.tasks.find((t) => t.id === state.activeTaskId && t.status === "pending") ?? null)
+        : null,
+    [state.tasks, state.activeTaskId],
   );
   const queue = useMemo(() => state.tasks.filter((t) => t.status === "pending"), [state.tasks]);
   const today = useMemo(() => computeToday(state.tasks), [state.tasks]);
 
-  // Keep a single focus session aligned with the current task.
+  // If the active task vanished (removed/edited away), drop the session.
   useEffect(() => {
     if (!ready) return;
     setState((s) => {
-      const cur = s.tasks.find((t) => t.status === "pending") ?? null;
-      if (!cur) return s.session ? { ...s, session: null } : s;
-      if (s.session && s.session.taskId === cur.id) return s;
-      return {
-        ...s,
-        session: {
-          taskId: cur.id,
-          startedAt: new Date().toISOString(),
-          durationSec: cur.durationMin * 60,
-        },
-      };
+      if (!s.activeTaskId) return s.session ? { ...s, session: null } : s;
+      const stillThere = s.tasks.some(
+        (t) => t.id === s.activeTaskId && t.status === "pending",
+      );
+      return stillThere ? s : { ...s, activeTaskId: null, session: null };
     });
   }, [currentTask?.id, ready]);
 
@@ -329,10 +426,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       queue,
       today,
       addGoal,
+      editGoal,
+      removeGoal,
       addTask,
+      addTasks,
       removeTask,
       moveTask,
       reorderQueue,
+      setActiveTask,
+      clearActiveTask,
+      pauseSession,
+      resumeSession,
       completeTask,
       skipTask,
       completeOnboarding,
@@ -350,10 +454,17 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       queue,
       today,
       addGoal,
+      editGoal,
+      removeGoal,
       addTask,
+      addTasks,
       removeTask,
       moveTask,
       reorderQueue,
+      setActiveTask,
+      clearActiveTask,
+      pauseSession,
+      resumeSession,
       completeTask,
       skipTask,
       completeOnboarding,

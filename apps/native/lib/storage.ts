@@ -19,6 +19,7 @@ export async function loadState(): Promise<PersistedState> {
       dismissedHints: parsed.dismissedHints ?? [],
       primaryGoalId: parsed.primaryGoalId ?? null,
       session: parsed.session ?? null,
+      activeTaskId: parsed.activeTaskId ?? null,
       timerStyle: parsed.timerStyle ?? "ring",
       notifications: { ...emptyState.notifications, ...(parsed.notifications ?? {}) },
     };
