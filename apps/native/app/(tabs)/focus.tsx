@@ -1,79 +1,101 @@
+import { Ionicons } from "@expo/vector-icons";
+import type BottomSheet from "@gorhom/bottom-sheet";
 import * as Haptics from "expo-haptics";
 import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { useFocusEffect, useRouter } from "expo-router";
-import { useCallback, useEffect, useRef } from "react";
-import { Pressable, Text, View } from "react-native";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Pressable, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { EmptyState } from "@/components/empty-state";
+import { PrimaryButton } from "@/components/buttons";
 import { FocusBackground } from "@/components/focus-background";
+import { FocusChooser } from "@/components/focus-chooser";
+import { GoalTasksSheet } from "@/components/goal-tasks-sheet";
+import { Card } from "@/components/primitives";
 import { AmbientTimer } from "@/components/timers/ambient-timer";
 import { NumeralsTimer } from "@/components/timers/numerals-timer";
 import { RingTimer } from "@/components/timers/ring-timer";
 import { type TimerVariantProps } from "@/components/timers/types";
+import { Body, BodyMuted, Caption, Label, Title } from "@/components/typography";
+import { nextInGoal } from "@/lib/selectors";
 import { playStartFocus, playTaskComplete } from "@/lib/sounds";
 import { useApp } from "@/lib/store";
-import { type TimerStyle } from "@/lib/types";
+import { type Task } from "@/lib/types";
 import { useCountdown } from "@/lib/use-countdown";
-import { COLORS, FONTS } from "@/lib/theme";
+import { COLORS } from "@/lib/theme";
 
 export default function Focus() {
   const router = useRouter();
-  const { currentTask, queue, state, today, completeTask, skipTask, setTimerStyle } = useApp();
+  const {
+    currentTask,
+    queue,
+    state,
+    today,
+    setActiveTask,
+    completeTask,
+    skipTask,
+    pauseSession,
+    resumeSession,
+  } = useApp();
   const countdown = useCountdown();
+  const sheetRef = useRef<BottomSheet>(null);
+  const [nextUp, setNextUp] = useState<Task | null>(null);
 
-  // Play the start chime when a new focus session begins (advancing to a new task).
+  // Keep the screen awake only while a session is actually running (not paused).
+  useFocusEffect(
+    useCallback(() => {
+      if (!countdown.active || countdown.paused) return;
+      activateKeepAwakeAsync("lockedin-focus");
+      return () => deactivateKeepAwake("lockedin-focus");
+    }, [countdown.active, countdown.paused]),
+  );
+
+  // Start chime when a new task becomes active.
   const prevTaskId = useRef<string | null>(null);
   useEffect(() => {
     const id = currentTask?.id ?? null;
-    if (id && prevTaskId.current !== null && prevTaskId.current !== id) {
-      playStartFocus();
-    }
+    if (id && prevTaskId.current !== null && prevTaskId.current !== id) playStartFocus();
     prevTaskId.current = id;
   }, [currentTask?.id]);
 
-  // Keep the screen awake while a focus session is running and visible.
-  useFocusEffect(
-    useCallback(() => {
-      if (!countdown.active) return;
-      activateKeepAwakeAsync("lockedin-focus");
-      return () => {
-        deactivateKeepAwake("lockedin-focus");
-      };
-    }, [countdown.active]),
-  );
-
-  if (!currentTask) {
+  // Just finished a task → confirm what's next.
+  if (nextUp) {
+    const goal = state.goals.find((g) => g.id === nextUp.goalId);
     return (
-      <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
-        <View style={{ flex: 1, justifyContent: "center" }}>
-          <EmptyState
-            icon="checkmark-done-circle-outline"
-            title="Nothing queued."
-            message="Add a task and you're straight back in the loop."
-            actionLabel="Add a task"
-            onAction={() => router.push("/tasks")}
-          />
-        </View>
-      </SafeAreaView>
+      <NextUpConfirm
+        task={nextUp}
+        goalTitle={goal?.title}
+        onStart={() => {
+          setActiveTask(nextUp.id);
+          setNextUp(null);
+        }}
+        onPickAnother={() => setNextUp(null)}
+      />
     );
   }
 
+  // No active task → the goal-grouped chooser.
+  if (!currentTask) {
+    return <FocusChooser onPick={(id) => setActiveTask(id)} />;
+  }
+
   const goal = state.goals.find((g) => g.id === currentTask.goalId);
-  const fallbackTotal = currentTask.durationMin * 60;
-  const total = countdown.active ? countdown.total : fallbackTotal;
-  const remaining = countdown.active ? countdown.remaining : fallbackTotal;
+  const total = countdown.active ? countdown.total : currentTask.durationMin * 60;
+  const remaining = countdown.active ? countdown.remaining : total;
   const elapsed = countdown.active ? countdown.elapsed : 0;
   const timeUp = countdown.active && remaining === 0;
+  const next = nextInGoal(state.tasks, currentTask.goalId, currentTask.id);
 
   function onDone() {
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     playTaskComplete();
     const wasFirstToday = today.completed === 0;
     const wasLastInQueue = queue.length === 1;
+    const nxt = nextInGoal(state.tasks, currentTask!.goalId, currentTask!.id);
     completeTask(currentTask!.id, elapsed);
     if (wasFirstToday) router.push("/first-win");
     else if (wasLastInQueue) router.push("/day-summary");
+    else if (nxt) setNextUp(nxt);
   }
 
   function onSkip() {
@@ -81,6 +103,12 @@ export default function Focus() {
     const wasLastInQueue = queue.length === 1;
     skipTask(currentTask!.id);
     if (wasLastInQueue) router.push("/day-summary");
+  }
+
+  function togglePause() {
+    Haptics.selectionAsync();
+    if (countdown.paused) resumeSession();
+    else pauseSession();
   }
 
   const variantProps: TimerVariantProps = {
@@ -108,58 +136,128 @@ export default function Focus() {
           <AmbientTimer {...variantProps} />
         )}
       </View>
-      <StyleSwitcher value={state.timerStyle} onChange={setTimerStyle} />
+
+      <FocusBottomBar
+        paused={countdown.paused}
+        onTogglePause={togglePause}
+        nextTask={next}
+        onViewAll={() => sheetRef.current?.expand()}
+      />
+
+      <GoalTasksSheet
+        ref={sheetRef}
+        goalId={currentTask.goalId}
+        onPickTask={(id) => {
+          sheetRef.current?.close();
+          setActiveTask(id);
+        }}
+      />
     </SafeAreaView>
   );
 }
 
-const STYLES: { key: TimerStyle; label: string }[] = [
-  { key: "ring", label: "Ring" },
-  { key: "numerals", label: "Numerals" },
-  { key: "ambient", label: "Ambient" },
-];
-
-function StyleSwitcher({
-  value,
-  onChange,
+function FocusBottomBar({
+  paused,
+  onTogglePause,
+  nextTask,
+  onViewAll,
 }: {
-  value: TimerStyle;
-  onChange: (style: TimerStyle) => void;
+  paused: boolean;
+  onTogglePause: () => void;
+  nextTask: Task | null;
+  onViewAll: () => void;
 }) {
   return (
-    <View style={{ flexDirection: "row", justifyContent: "center", gap: 6, paddingVertical: 10 }}>
-      {STYLES.map((o) => {
-        const active = o.key === value;
-        return (
-          <Pressable
-            key={o.key}
-            onPress={() => {
-              Haptics.selectionAsync();
-              onChange(o.key);
-            }}
-            style={{
-              paddingHorizontal: 14,
-              paddingVertical: 6,
-              borderRadius: 999,
-              backgroundColor: active ? "rgba(255,107,74,0.12)" : "transparent",
-              borderWidth: 1,
-              borderColor: active ? COLORS.coralDeep : "transparent",
-            }}
-          >
-            <Text
-              style={{
-                fontFamily: FONTS.monoMedium,
-                fontSize: 11,
-                letterSpacing: 1,
-                textTransform: "uppercase",
-                color: active ? COLORS.coral : COLORS.subtle,
-              }}
-            >
-              {o.label}
-            </Text>
-          </Pressable>
-        );
-      })}
+    <View
+      style={{
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 12,
+        paddingHorizontal: 24,
+        paddingTop: 10,
+        paddingBottom: 12,
+        borderTopWidth: 1,
+        borderTopColor: COLORS.line,
+      }}
+    >
+      <Pressable
+        onPress={onTogglePause}
+        hitSlop={8}
+        style={{
+          width: 42,
+          height: 42,
+          borderRadius: 21,
+          borderWidth: 1,
+          borderColor: paused ? COLORS.coral : COLORS.line,
+          backgroundColor: paused ? "rgba(255,107,74,0.1)" : "transparent",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Ionicons name={paused ? "play" : "pause"} size={18} color={paused ? COLORS.coral : COLORS.fg} />
+      </Pressable>
+
+      <View style={{ flex: 1 }}>
+        <Label>{paused ? "Paused" : "Next up"}</Label>
+        <Body style={{ fontSize: 14 }} numberOfLines={1} color={nextTask ? COLORS.fg : COLORS.subtle}>
+          {nextTask ? nextTask.title : "Nothing after this one"}
+        </Body>
+      </View>
+
+      <Pressable
+        onPress={onViewAll}
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 4,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: COLORS.line,
+          paddingHorizontal: 14,
+          paddingVertical: 9,
+        }}
+      >
+        <Caption color={COLORS.fg}>View all</Caption>
+        <Ionicons name="chevron-up" size={14} color={COLORS.subtle} />
+      </Pressable>
     </View>
+  );
+}
+
+function NextUpConfirm({
+  task,
+  goalTitle,
+  onStart,
+  onPickAnother,
+}: {
+  task: Task;
+  goalTitle?: string;
+  onStart: () => void;
+  onPickAnother: () => void;
+}) {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
+      <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 28 }}>
+        <View style={{ alignItems: "center" }}>
+          <Label>Next up</Label>
+          <Title style={{ marginTop: 10, textAlign: "center" }}>That&apos;s a W. Keep it rolling?</Title>
+        </View>
+
+        <Card style={{ marginTop: 26, alignItems: "center", paddingVertical: 26 }}>
+          {goalTitle ? <Label>{goalTitle}</Label> : null}
+          <Title style={{ marginTop: 8, textAlign: "center" }}>{task.title}</Title>
+          <Caption style={{ marginTop: 8, fontFamily: "JetBrainsMono_500Medium" }}>
+            {task.durationMin}m
+          </Caption>
+        </Card>
+
+        <View style={{ marginTop: 26, gap: 8 }}>
+          <PrimaryButton label="Start this" onPress={onStart} />
+          <Pressable onPress={onPickAnother} style={{ alignItems: "center", paddingVertical: 12 }}>
+            <BodyMuted style={{ fontSize: 15 }}>Pick another</BodyMuted>
+          </Pressable>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }
