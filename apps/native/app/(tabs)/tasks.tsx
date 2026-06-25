@@ -1,13 +1,12 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { useState } from "react";
 import { Pressable, View } from "react-native";
 
 import { EmptyState } from "@/components/empty-state";
 import { AddRow } from "@/components/primitives";
 import { Screen, ScreenHeader } from "@/components/screen";
-import { TaskComposer } from "@/components/task-composer";
+import { useToast } from "@/components/toast";
 import { BodyStrong, Caption, Label } from "@/components/typography";
 import { formatClock } from "@/lib/date";
 import { pendingForGoal, tasksForGoalAll } from "@/lib/selectors";
@@ -17,9 +16,9 @@ import { COLORS, RADIUS } from "@/lib/theme";
 
 export default function Tasks() {
   const router = useRouter();
-  const { state, currentTask, pauseSession, resumeSession, removeTask } = useApp();
+  const { state, currentTask, pauseSession, resumeSession, removeTask, completeTask } = useApp();
   const countdown = useCountdown();
-  const [composerGoalId, setComposerGoalId] = useState<string | null | undefined>(undefined);
+  const toast = useToast();
 
   const goals = [...state.goals].sort((a, b) => {
     if (a.id === state.primaryGoalId) return -1;
@@ -31,6 +30,12 @@ export default function Tasks() {
     Haptics.selectionAsync();
     if (countdown.paused) resumeSession();
     else pauseSession();
+  }
+
+  function markDone(id: string) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    completeTask(id, 0);
+    toast.show("Nice — marked done.", "info");
   }
 
   return (
@@ -114,7 +119,7 @@ export default function Tasks() {
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
-                      gap: 10,
+                      gap: 12,
                       borderRadius: RADIUS.xl,
                       borderWidth: 1,
                       borderColor: isActive ? COLORS.coral : COLORS.line,
@@ -122,6 +127,11 @@ export default function Tasks() {
                       padding: 16,
                     }}
                   >
+                    {!isActive ? (
+                      <Pressable onPress={() => markDone(t.id)} hitSlop={10}>
+                        <Ionicons name="ellipse-outline" size={22} color={COLORS.subtle} />
+                      </Pressable>
+                    ) : null}
                     <View style={{ flex: 1 }}>
                       {isActive ? <Label style={{ marginBottom: 2 }}>{countdown.paused ? "Paused" : "Focusing now"}</Label> : null}
                       <BodyStrong style={{ fontSize: 15 }}>{t.title}</BodyStrong>
@@ -140,11 +150,10 @@ export default function Tasks() {
                 );
               })}
 
-              {composerGoalId === goal.id ? (
-                <TaskComposer goalId={goal.id} onClose={() => setComposerGoalId(undefined)} />
-              ) : (
-                <AddRow label="Add tasks" onPress={() => setComposerGoalId(goal.id)} />
-              )}
+              <AddRow
+                label="Add tasks"
+                onPress={() => router.push(`/compose-tasks?goalId=${goal.id}`)}
+              />
             </View>
           </View>
         );
