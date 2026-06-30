@@ -123,7 +123,7 @@ export default function Tasks() {
                       borderRadius: RADIUS.xl,
                       borderWidth: 1,
                       borderColor: isActive ? COLORS.coral : COLORS.line,
-                      backgroundColor: isActive ? "rgba(255,107,74,0.07)" : COLORS.card,
+                      backgroundColor: isActive ? "rgba(52,211,153,0.07)" : COLORS.card,
                       padding: 16,
                     }}
                   >

@@ -20,7 +20,7 @@ export function PlanOption({ title, price, sub, badge, selected, onPress }: Prop
         borderRadius: RADIUS.x2,
         borderWidth: 1,
         borderColor: selected ? COLORS.coral : COLORS.line,
-        backgroundColor: selected ? "rgba(255,107,74,0.06)" : COLORS.card,
+        backgroundColor: selected ? "rgba(52,211,153,0.06)" : COLORS.card,
         paddingHorizontal: 18,
         paddingVertical: 16,
         opacity: pressed ? 0.9 : 1,

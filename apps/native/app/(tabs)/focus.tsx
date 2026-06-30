@@ -189,7 +189,7 @@ function FocusBottomBar({
           borderRadius: 21,
           borderWidth: 1,
           borderColor: paused ? COLORS.coral : COLORS.line,
-          backgroundColor: paused ? "rgba(255,107,74,0.1)" : "transparent",
+          backgroundColor: paused ? "rgba(52,211,153,0.1)" : "transparent",
           alignItems: "center",
           justifyContent: "center",
         }}

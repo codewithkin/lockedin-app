@@ -15,7 +15,7 @@ export function DaySummaryStats() {
 
   return (
     <View>
-      <Card style={{ borderColor: COLORS.coralDeep, backgroundColor: "rgba(255,107,74,0.07)" }}>
+      <Card style={{ borderColor: COLORS.coralDeep, backgroundColor: "rgba(52,211,153,0.07)" }}>
         <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
           <Ionicons name="flame" size={28} color={COLORS.coral} />
           <View>

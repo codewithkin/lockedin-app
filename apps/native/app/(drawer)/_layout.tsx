@@ -13,7 +13,7 @@ export default function DrawerLayout() {
         drawerStyle: { backgroundColor: COLORS.ink, width: 280 },
         drawerActiveTintColor: COLORS.coral,
         drawerInactiveTintColor: COLORS.subtle,
-        drawerActiveBackgroundColor: "rgba(255,107,74,0.08)",
+        drawerActiveBackgroundColor: "rgba(52,211,153,0.08)",
         drawerLabelStyle: { fontFamily: "HankenGrotesk_600SemiBold", fontSize: 15 },
       }}
     >

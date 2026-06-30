@@ -92,7 +92,7 @@ export default function Streak() {
           borderRadius: RADIUS.x2,
           borderWidth: 1,
           borderColor: COLORS.coralDeep,
-          backgroundColor: "rgba(255,107,74,0.06)",
+          backgroundColor: "rgba(52,211,153,0.06)",
           padding: 16,
           opacity: pressed ? 0.8 : 1,
         })}

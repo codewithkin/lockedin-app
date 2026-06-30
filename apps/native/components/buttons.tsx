@@ -20,7 +20,7 @@ export function PrimaryButton({ label, onPress, disabled, haptic = true }: Props
         onPress();
       }}
       style={{
-        backgroundColor: disabled ? "#3A2418" : COLORS.coral,
+        backgroundColor: disabled ? "#143026" : COLORS.coral,
         borderRadius: RADIUS.pill,
         overflow: "hidden",
       }}

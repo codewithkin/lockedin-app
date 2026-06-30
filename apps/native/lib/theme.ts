@@ -6,9 +6,14 @@ export const COLORS = {
   fg: "#ECEAE6",
   subtle: "#8A8A94",
   paper: "#F4EFE9",
-  coral: "#FF6B4A",
-  coralBright: "#FF8A6E",
-  coralDeep: "#E0512E",
+  // ExcuseLess brand accent — emerald green
+  green: "#34D399",
+  greenBright: "#6EE7B7",
+  greenDeep: "#059669",
+  // Deprecated aliases: kept so existing references resolve to the new green.
+  coral: "#34D399",
+  coralBright: "#6EE7B7",
+  coralDeep: "#059669",
 };
 
 export const FONTS = {
@@ -34,6 +39,6 @@ export const RADIUS = {
 export const DURATIONS = [15, 25, 45, 60];
 
 // Backwards-compatible aliases
-export const ACCENT = COLORS.coral;
-export const ACCENT_MUTED = "#3A2418";
+export const ACCENT = COLORS.green;
+export const ACCENT_MUTED = "#0E2A20";
 export const INK = COLORS.ink;

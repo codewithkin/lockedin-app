@@ -12,9 +12,12 @@
   --color-fg: #eceae6;
   --color-subtle: #8a8a94;
   --color-paper: #f4efe9;
-  --color-coral: #ff6b4a;
-  --color-coral-bright: #ff8a6e;
-  --color-coral-deep: #e0512e;
+  --color-green: #34d399;
+  --color-green-bright: #6ee7b7;
+  --color-green-deep: #059669;
+  --color-coral: #34d399;
+  --color-coral-bright: #6ee7b7;
+  --color-coral-deep: #059669;
 
   --font-display: "Newsreader_600SemiBold";
   --font-sans: "HankenGrotesk_400Regular";

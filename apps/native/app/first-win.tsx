@@ -46,7 +46,7 @@ export default function FirstWin() {
               borderRadius: 28,
               borderWidth: 1,
               borderColor: COLORS.coralDeep,
-              backgroundColor: "rgba(255,107,74,0.1)",
+              backgroundColor: "rgba(52,211,153,0.1)",
               alignItems: "center",
               justifyContent: "center",
             }}

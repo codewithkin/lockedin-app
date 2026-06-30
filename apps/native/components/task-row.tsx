@@ -53,7 +53,7 @@ export function TaskRow({
         backgroundColor: active
           ? COLORS.elevated
           : running
-            ? "rgba(255,107,74,0.07)"
+            ? "rgba(52,211,153,0.07)"
             : done || skipped
               ? "transparent"
               : COLORS.card,

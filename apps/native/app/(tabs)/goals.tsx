@@ -35,7 +35,7 @@ export default function Goals() {
 
       {primary && primaryStats ? (
         <View style={{ marginTop: 20 }}>
-          <Card style={{ borderColor: COLORS.coralDeep, backgroundColor: "rgba(255,107,74,0.06)" }}>
+          <Card style={{ borderColor: COLORS.coralDeep, backgroundColor: "rgba(52,211,153,0.06)" }}>
             <Label style={{ marginBottom: 10 }}>Primary goal</Label>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 14 }}>
               <View style={{ flex: 1 }}>

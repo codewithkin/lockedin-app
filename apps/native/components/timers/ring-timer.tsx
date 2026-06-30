@@ -48,7 +48,7 @@ export function RingTimer({
               borderRadius: RADIUS.pill,
               borderWidth: 1,
               borderColor: COLORS.coralDeep,
-              backgroundColor: "rgba(255,107,74,0.08)",
+              backgroundColor: "rgba(52,211,153,0.08)",
               paddingHorizontal: 12,
               paddingVertical: 6,
             }}
