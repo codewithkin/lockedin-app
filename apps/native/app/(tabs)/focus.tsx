@@ -200,7 +200,7 @@ function FocusBottomBar({
       <View style={{ flex: 1 }}>
         <Label>{paused ? "Paused" : "Next up"}</Label>
         <Body style={{ fontSize: 14 }} numberOfLines={1} color={nextTask ? COLORS.fg : COLORS.subtle}>
-          {nextTask ? nextTask.title : "Nothing after this one"}
+          {nextTask ? nextTask.title : "That's the last task"}
         </Body>
       </View>
 
@@ -217,7 +217,7 @@ function FocusBottomBar({
           paddingVertical: 9,
         }}
       >
-        <Caption color={COLORS.fg}>View all</Caption>
+        <Caption color={COLORS.fg}>See all</Caption>
         <Ionicons name="chevron-up" size={14} color={COLORS.subtle} />
       </Pressable>
     </View>
@@ -241,7 +241,7 @@ function NextUpConfirm({
       <View style={{ flex: 1, justifyContent: "center", paddingHorizontal: 28 }}>
         <View style={{ alignItems: "center" }}>
           <Label>Next up</Label>
-          <Title style={{ marginTop: 10, textAlign: "center" }}>That&apos;s a W. Keep it rolling?</Title>
+          <Title style={{ marginTop: 10, textAlign: "center" }}>Task done. Onto the next one?</Title>
         </View>
 
         <Card style={{ marginTop: 26, alignItems: "center", paddingVertical: 26 }}>
@@ -253,15 +253,15 @@ function NextUpConfirm({
         </Card>
 
         <View style={{ marginTop: 26, gap: 8 }}>
-          <PrimaryButton label="Start this" onPress={onStart} />
+          <PrimaryButton label="Start this task" onPress={onStart} />
           <Pressable onPress={onPickAnother} style={{ alignItems: "center", paddingVertical: 12 }}>
-            <BodyMuted style={{ fontSize: 15 }}>Pick another</BodyMuted>
+            <BodyMuted style={{ fontSize: 15 }}>Pick another task</BodyMuted>
           </Pressable>
           <Pressable
             onPress={() => router.push("/share?type=task")}
             style={{ alignItems: "center", paddingVertical: 4 }}
           >
-            <Caption color={COLORS.coral}>Share that win</Caption>
+            <Caption color={COLORS.coral}>Share it</Caption>
           </Pressable>
         </View>
       </View>

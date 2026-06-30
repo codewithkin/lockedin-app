@@ -20,9 +20,9 @@ export function FocusChooser({ onPick }: { onPick: (taskId: string) => void }) {
         <View style={{ flex: 1, justifyContent: "center" }}>
           <EmptyState
             icon="sparkles-outline"
-            title="Nothing to lock in on"
-            message="Hit the planner and jot down what you wanna get done today."
-            actionLabel="Open planner"
+            title="No tasks yet"
+            message="Add a goal and its first task in the planner. Start with something you can't talk yourself out of."
+            actionLabel="Open the planner"
             onAction={() => router.push("/tasks")}
           />
         </View>
@@ -33,11 +33,11 @@ export function FocusChooser({ onPick }: { onPick: (taskId: string) => void }) {
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
       <ScrollView contentContainerStyle={{ padding: 24, paddingBottom: 48 }} showsVerticalScrollIndicator={false}>
-        <Label>Focus</Label>
+        <Label>Today</Label>
         <Display style={{ fontSize: 30, lineHeight: 34, marginTop: 8 }}>
-          What are we locking in on?
+          Which task, right now?
         </Display>
-        <BodyMuted style={{ marginTop: 6 }}>Pick one — the timer starts the second you do.</BodyMuted>
+        <BodyMuted style={{ marginTop: 6 }}>Pick one. The clock starts the second you do.</BodyMuted>
 
         {groups.map((group) => (
           <View key={group.goal?.id ?? "none"} style={{ marginTop: 26 }}>
