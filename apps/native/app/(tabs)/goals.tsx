@@ -29,7 +29,7 @@ export default function Goals() {
 
       <View style={{ marginTop: 16 }}>
         <Hint id="goals.primary">
-          Every new task files under your primary goal — switch it anytime.
+          Your primary goal is where new tasks land. Switch it anytime.
         </Hint>
       </View>
 
@@ -57,7 +57,7 @@ export default function Goals() {
             compact
             icon="flag-outline"
             title="No goals yet"
-            message="Set what you're working toward, then break it into tasks."
+            message="Name what you're working toward. Then break it into tasks you'll actually do."
           />
         ) : (
           <View style={{ gap: 10, marginBottom: 8 }}>
@@ -95,7 +95,7 @@ export default function Goals() {
             })}
           </View>
         )}
-        <AddRow label="New goal" onPress={() => router.push("/add-goal")} />
+        <AddRow label="Add a goal" onPress={() => router.push("/add-goal")} />
       </View>
     </Screen>
   );
