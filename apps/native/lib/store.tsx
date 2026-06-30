@@ -14,6 +14,14 @@ import {
 
 type AddTaskInput = { title: string; durationMin: number; goalId?: string | null };
 
+export type OnboardingInput = {
+  focusAreas: string[];
+  reason: string | null;
+  areaForHabit: string;
+  habitTitle: string;
+  durationMin: number;
+};
+
 type AppContextType = {
   ready: boolean;
   state: PersistedState;
@@ -34,7 +42,7 @@ type AppContextType = {
   resumeSession: () => void;
   completeTask: (id: string, focusSeconds: number) => void;
   skipTask: (id: string) => void;
-  completeOnboarding: (goalTitle: string, taskTitle: string, durationMin: number) => void;
+  completeOnboarding: (input: OnboardingInput) => void;
   hideHintForever: (id: string) => void;
   editTask: (id: string, patch: { title?: string; durationMin?: number }) => void;
   extendSession: (minutes: number) => void;
@@ -100,6 +108,10 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       daily: true,
       streakRisk: true,
       taskNudge: true,
+    },
+    profile: {
+      focusAreas: [],
+      reason: null,
     },
   }));
 
@@ -320,29 +332,37 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const completeOnboarding = useCallback(
-    (goalTitle: string, taskTitle: string, durationMin: number) => {
+    (input: OnboardingInput) => {
       setState((s) => {
-        const goal: Goal = {
+        const now = new Date().toISOString();
+        const areaTitles =
+          input.focusAreas.length > 0
+            ? input.focusAreas
+            : [input.areaForHabit.trim() || "My habits"];
+        const goals: Goal[] = areaTitles.map((title) => ({
           id: newId(),
-          title: goalTitle.trim() || "My goal",
-          createdAt: new Date().toISOString(),
-        };
+          title: title.trim(),
+          createdAt: now,
+        }));
+        const habitArea = input.areaForHabit.trim();
+        const habitGoal = goals.find((g) => g.title === habitArea) ?? goals[0];
         const task: Task = {
           id: newId(),
-          goalId: goal.id,
-          title: taskTitle.trim() || "First task",
-          durationMin,
+          goalId: habitGoal.id,
+          title: input.habitTitle.trim() || "First habit",
+          durationMin: input.durationMin,
           status: "pending",
-          createdAt: new Date().toISOString(),
+          createdAt: now,
         };
         return {
           ...s,
           onboarded: true,
-          goals: [goal],
+          goals,
           tasks: [task],
-          primaryGoalId: goal.id,
-          activeTaskId: task.id,
-          session: makeSession(task),
+          primaryGoalId: habitGoal.id,
+          activeTaskId: null,
+          session: null,
+          profile: { focusAreas: input.focusAreas, reason: input.reason },
         };
       });
     },

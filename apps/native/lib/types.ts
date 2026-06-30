@@ -50,6 +50,12 @@ export type NotificationPrefs = {
   taskNudge: boolean;
 };
 
+// Set during onboarding, used to personalize the app.
+export type Profile = {
+  focusAreas: string[];
+  reason: string | null;
+};
+
 export type PersistedState = {
   onboarded: boolean;
   goals: Goal[];
@@ -62,6 +68,7 @@ export type PersistedState = {
   activeTaskId: string | null;
   timerStyle: TimerStyle;
   notifications: NotificationPrefs;
+  profile: Profile;
 };
 
 export const emptyState: PersistedState = {
@@ -86,5 +93,9 @@ export const emptyState: PersistedState = {
     daily: true,
     streakRisk: true,
     taskNudge: true,
+  },
+  profile: {
+    focusAreas: [],
+    reason: null,
   },
 };

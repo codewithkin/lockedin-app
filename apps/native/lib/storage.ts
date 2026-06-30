@@ -22,6 +22,7 @@ export async function loadState(): Promise<PersistedState> {
       activeTaskId: parsed.activeTaskId ?? null,
       timerStyle: parsed.timerStyle ?? "ring",
       notifications: { ...emptyState.notifications, ...(parsed.notifications ?? {}) },
+      profile: { ...emptyState.profile, ...(parsed.profile ?? {}) },
     };
   } catch {
     return emptyState;
