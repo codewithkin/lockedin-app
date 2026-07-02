@@ -146,7 +146,7 @@ export default function GoalDetail() {
 
         <SectionLabel style={{ marginTop: 28 }}>Tasks</SectionLabel>
         {tasks.length === 0 ? (
-          <BodyMuted>Nothing queued for this one yet.</BodyMuted>
+          <BodyMuted>No tasks under this goal yet. Add one below.</BodyMuted>
         ) : (
           <View style={{ gap: 8 }}>
             {tasks.map((t) => {

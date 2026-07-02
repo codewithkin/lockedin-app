@@ -52,7 +52,7 @@ export default function DaySummarySheet() {
         >
           <Ionicons name="share-outline" size={18} color={COLORS.ink} />
           <Body style={{ fontFamily: FONTS.sansSemibold }} color={COLORS.ink}>
-            Share
+            Share today
           </Body>
         </Pressable>
         <Pressable

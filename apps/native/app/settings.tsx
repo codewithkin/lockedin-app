@@ -25,7 +25,7 @@ const ROWS: {
     key: "daily",
     icon: "sunny-outline",
     title: "Daily reminder",
-    desc: "A morning nudge to lock in.",
+    desc: "A morning nudge to start your first task.",
   },
   {
     key: "streakRisk",

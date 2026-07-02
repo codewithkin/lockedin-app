@@ -47,11 +47,6 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK"
       ]
-    },
-    "extra": {
-      "eas": {
-        "projectId": "2dd528a2-83a7-4787-8f76-fa6d2b49b114"
-      }
     }
   }
 }

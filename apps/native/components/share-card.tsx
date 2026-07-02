@@ -44,10 +44,10 @@ export const ShareCard = forwardRef<View, Props>(function ShareCard(
         }}
       />
 
-      <Label>LockedIn</Label>
+      <Label>ExcuseLess</Label>
       <Display style={{ marginTop: 14, fontSize: 56, lineHeight: 58 }}>Day {streak}.</Display>
       <Caption style={{ marginTop: 8, fontSize: 14 }} color={COLORS.subtle}>
-        {streak <= 1 ? "Day one. We're locked in." : `${streak} days locked in. Hell of a run.`}
+        {streak <= 1 ? "Day one. No excuses." : `${streak} days unbroken. No excuses.`}
       </Caption>
 
       <View style={{ flexDirection: "row", gap: 28, marginTop: 28 }}>

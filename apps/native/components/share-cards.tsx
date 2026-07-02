@@ -45,7 +45,7 @@ const ShareFrame = forwardRef<View, { children: React.ReactNode }>(function Shar
 
       <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
         <Ionicons name="flame" size={16} color={COLORS.coral} />
-        <Label>LockedIn</Label>
+        <Label>ExcuseLess</Label>
       </View>
 
       <View style={{ marginTop: 18 }}>{children}</View>
@@ -108,7 +108,7 @@ export const TodayShareCard = forwardRef<
     <ShareFrame ref={ref}>
       <Display style={{ fontSize: 40, lineHeight: 44 }}>Today</Display>
       <Caption style={{ marginTop: 6 }}>
-        {streak} day{streak === 1 ? "" : "s"} locked in. No skips on the brand.
+        {streak} day{streak === 1 ? "" : "s"} unbroken. No excuses.
       </Caption>
 
       <View style={{ flexDirection: "row", gap: 28, marginTop: 22 }}>
@@ -132,13 +132,13 @@ export const TaskShareCard = forwardRef<View, { task: Task; streak: number }>(
   function TaskShareCard({ task, streak }, ref) {
     return (
       <ShareFrame ref={ref}>
-        <Label>Locked in</Label>
+        <Label>Task done</Label>
         <Display style={{ marginTop: 10, fontSize: 32, lineHeight: 36 }}>{task.title}</Display>
         <View style={{ flexDirection: "row", gap: 28, marginTop: 22 }}>
           <Stat label="Focused" value={`${task.focusSeconds ? formatDuration(task.focusSeconds) : `${task.durationMin}m`}`} />
           <Stat label="Streak" value={String(streak)} accent />
         </View>
-        <Caption style={{ marginTop: 18 }}>That&apos;s a W. One task at a time.</Caption>
+        <Caption style={{ marginTop: 18 }}>No excuses. One task at a time.</Caption>
       </ShareFrame>
     );
   },
@@ -155,7 +155,7 @@ export const StreakShareCard = forwardRef<
         <Display style={{ fontSize: 64, lineHeight: 68, marginTop: 8 }} color={COLORS.coral}>
           {streak}
         </Display>
-        <Caption>day{streak === 1 ? "" : "s"} locked in</Caption>
+        <Caption>day{streak === 1 ? "" : "s"} unbroken</Caption>
       </View>
       <View style={{ flexDirection: "row", justifyContent: "center", gap: 36, marginTop: 14 }}>
         <Stat label="Tasks done" value={String(tasksCompleted)} />

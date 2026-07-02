@@ -108,13 +108,13 @@ export default function ShareScreen() {
           <Animated.View entering={FadeInUp.duration(420)}>{card}</Animated.View>
           <Animated.View entering={FadeIn.delay(300)}>
             <BodyMuted style={{ marginTop: 16, textAlign: "center", fontSize: 14 }}>
-              Drops straight to your share sheet — post it wherever.
+              Goes straight to your share sheet. Post it anywhere.
             </BodyMuted>
           </Animated.View>
         </View>
 
         <View style={{ paddingBottom: 16 }}>
-          <PrimaryButton label={busy ? "Cooking…" : "Share"} onPress={onShare} disabled={busy} />
+          <PrimaryButton label={busy ? "Opening…" : "Share it"} onPress={onShare} disabled={busy} />
         </View>
       </View>
     </SafeAreaView>

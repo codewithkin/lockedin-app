@@ -21,7 +21,7 @@ export default function FirstWin() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.ink }}>
-      {/* coral glow */}
+      {/* green glow */}
       <View
         pointerEvents="none"
         style={{
@@ -57,7 +57,7 @@ export default function FirstWin() {
           <Animated.View entering={FadeInDown.delay(120).duration(320)} style={{ alignItems: "center" }}>
             <Display style={{ marginTop: 20, fontSize: 52, lineHeight: 56 }}>Day {streak}.</Display>
             <BodyMuted style={{ marginTop: 6, textAlign: "center" }}>
-              {streak <= 1 ? "You showed up. Streak's officially live." : "Back at it — don't let it cook."}
+              {streak <= 1 ? "You showed up. Your streak is live." : "Back at it. Keep the streak alive."}
             </BodyMuted>
           </Animated.View>
         </View>
@@ -77,12 +77,12 @@ export default function FirstWin() {
       </View>
 
       <View style={{ paddingHorizontal: 28, paddingBottom: 28, gap: 6 }}>
-        <PrimaryButton label="Continue" onPress={() => router.back()} />
+        <PrimaryButton label="Keep going" onPress={() => router.back()} />
         <Pressable
           onPress={() => router.push("/share?type=task")}
           style={{ alignItems: "center", paddingVertical: 12 }}
         >
-          <BodyMuted style={{ fontSize: 15 }}>Share this win</BodyMuted>
+          <BodyMuted style={{ fontSize: 15 }}>Share it</BodyMuted>
         </Pressable>
       </View>
     </SafeAreaView>

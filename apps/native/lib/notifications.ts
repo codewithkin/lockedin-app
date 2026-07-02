@@ -22,7 +22,7 @@ Notifications.setNotificationHandler({
 export async function ensureNotificationSetup(): Promise<boolean> {
   if (Platform.OS === "android") {
     await Notifications.setNotificationChannelAsync("default", {
-      name: "LockedIn",
+      name: "ExcuseLess",
       importance: Notifications.AndroidImportance.HIGH,
       vibrationPattern: [0, 200, 100, 200],
       lightColor: COLORS.coral,

@@ -36,7 +36,7 @@ export function ImageWithFallback({ uri, style, resizeMode = "cover" }: Props) {
           }}
         />
         <Ionicons name="image-outline" size={28} color={COLORS.subtle} />
-        <Label style={{ marginTop: 8 }}>LockedIn</Label>
+        <Label style={{ marginTop: 8 }}>ExcuseLess</Label>
       </View>
     );
   }
