@@ -1,13 +1,13 @@
 {
   "expo": {
-    "scheme": "excuseless",
+    "scheme": "ExcuseLess",
     "userInterfaceStyle": "automatic",
     "orientation": "default",
     "web": {
       "bundler": "metro"
     },
     "name": "ExcuseLess",
-    "slug": "excuseless",
+    "slug": "ExcuseLess",
     "icon": "./assets/images/icon.png",
     "plugins": [
       "expo-font",
